@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>5·6과 본문 시험장</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Lora:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f2ede3;
+    --card: #fbf8f1;
+    --ink: #35322c;
+    --muted: #8a8272;
+    --line: #ddd5c4;
+    --accent: #a8402f;
+    --accent-soft: #f4e3df;
+    --good: #3d7a4e;
+    --good-soft: #e6efe7;
+    --bad: #a8402f;
+    --bad-soft: #f6e5e1;
+    --over: #a07417;
+    --over-soft: #f3ecd9;
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+    font-size: 15px; line-height: 1.6;
+    padding-bottom: 80px;
+  }
+  header { text-align: center; padding: 44px 16px 8px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 6px;
+    color: var(--accent); text-transform: uppercase;
+  }
+  h1 {
+    font-family: "Gowun Batang", serif; font-weight: 700;
+    font-size: clamp(28px, 5vw, 42px); letter-spacing: 2px;
+    margin-top: 10px; text-wrap: balance;
+  }
+  .lede { color: var(--muted); font-size: 14px; margin-top: 10px; }
+
+  /* ── 탭들 ── */
+  #lessonTabs { display: flex; justify-content: center; gap: 6px; margin-top: 34px; }
+  #lessonTabs button {
+    font-family: "Gowun Batang", serif; font-weight: 700; font-size: 15px;
+    padding: 10px 22px 8px; cursor: pointer;
+    border: 1px solid var(--line); border-bottom: none;
+    border-radius: 10px 10px 0 0; background: #ece5d6; color: var(--muted);
+  }
+  #lessonTabs button.on { background: var(--card); color: var(--ink); transform: translateY(1px); }
+  #partRow { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 18px 16px 0; }
+  #partRow button {
+    font-size: 13px; font-weight: 500; padding: 6px 16px; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--muted);
+  }
+  #partRow button.on { background: var(--ink); border-color: var(--ink); color: var(--card); font-weight: 700; }
+  #modeRow { display: flex; justify-content: center; margin-top: 12px; }
+  #modeRow .seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--card); }
+  #modeRow button {
+    font-size: 13px; font-weight: 500; padding: 7px 18px; cursor: pointer;
+    border: none; background: transparent; color: var(--muted);
+  }
+  #modeRow button.on { background: var(--accent); color: #fff; font-weight: 700; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* ── 시험지 ── */
+  #paper {
+    max-width: 780px; margin: 0 auto; background: var(--card);
+    border: 1px solid var(--line); border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(53, 50, 44, .07);
+    padding: 26px 30px 40px;
+  }
+  @media (max-width: 820px) { #paper { margin: 0 12px; padding: 20px 16px 32px; } }
+
+  #statusbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-bottom: 18px; }
+  #statusMsg { font-size: 13px; color: var(--muted); }
+  #statusMsg b.g { color: var(--good); }
+  #statusMsg b.o { color: var(--over); }
+  #statusMsg b.b { color: var(--bad); }
+  #fillCount { margin-left: auto; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  #statusbar .btn {
+    font-family: inherit; font-size: 13px; font-weight: 500; padding: 7px 14px;
+    border: 1px solid var(--line); border-radius: 7px; background: var(--card); cursor: pointer; color: var(--ink);
+  }
+  #statusbar .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  #statusbar .btn.hinton { background: var(--over-soft); border-color: var(--over); color: var(--over); }
+
+  .section { margin-top: 26px; }
+  .sechead { display: flex; align-items: baseline; gap: 10px; border-bottom: 2px solid var(--ink); padding-bottom: 6px; }
+  .sechead .range { font-family: "Lora", serif; font-style: italic; color: var(--accent); font-size: 14px; font-weight: 600; }
+  .sechead .st { font-family: "Gowun Batang", serif; font-weight: 700; font-size: 17px; }
+  .sechead .ss { font-size: 12px; color: var(--muted); }
+
+  .item { padding: 16px 0 14px; border-bottom: 1px dashed var(--line); position: relative; }
+  .item .top { display: flex; gap: 10px; align-items: baseline; }
+  .item .no { font-family: "Lora", serif; font-size: 13px; color: var(--muted); min-width: 24px; font-variant-numeric: tabular-nums; }
+  .sp {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); border-radius: 4px; padding: 1px 7px;
+    align-self: center; white-space: nowrap;
+  }
+  .ko { font-size: 15px; }
+  .en-line { font-family: "Lora", Georgia, serif; font-size: 16.5px; line-height: 2.1; }
+  .verdict { position: absolute; right: 0; top: 14px; font-size: 12px; font-weight: 700; }
+  .verdict.g { color: var(--good); }
+  .verdict.b { color: var(--bad); }
+  .verdict.o { color: var(--over); }
+  .item.correct { box-shadow: inset 3px 0 0 var(--good); padding-left: 10px; }
+  .item.wrong { box-shadow: inset 3px 0 0 var(--bad); padding-left: 10px; }
+  .item.override { box-shadow: inset 3px 0 0 var(--over); padding-left: 10px; }
+
+  .writein {
+    display: block; width: calc(100% - 34px); margin: 10px 0 0 34px;
+    font-family: "Lora", Georgia, serif; font-size: 15.5px; color: var(--ink);
+    background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 9px 12px;
+  }
+  .writein::placeholder { font-style: italic; color: #b6ad9a; }
+  .blank {
+    font-family: "Lora", Georgia, serif; font-size: 15px; color: var(--ink);
+    background: #fff; border: none; border-bottom: 2px solid var(--accent);
+    padding: 1px 4px; text-align: center;
+  }
+  .blank.hint::placeholder { color: var(--over); font-weight: 600; }
+  .item .answer { margin: 8px 0 0 34px; font-size: 13.5px; color: var(--muted); }
+  .item .answer b { font-family: "Lora", serif; color: var(--ink); font-weight: 500; }
+  .overbtn {
+    margin: 8px 0 0 34px; font-family: inherit; font-size: 12px; padding: 4px 10px;
+    border: 1px solid var(--line); border-radius: 6px; background: var(--card); cursor: pointer; color: var(--ink);
+  }
+  .overbtn.on { background: var(--over); border-color: var(--over); color: #fff; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 30px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">2학기 중간고사 · 5과 &amp; 6과</div>
+  <h1>본문 시험장</h1>
+  <div class="lede">Reading · Dialogues · Extra Reading · 단어 예문 — 뜻 보고 영작하거나, 빈칸을 채운 뒤 채점하세요.</div>
+</header>
+
+<div id="lessonTabs"></div>
+<div id="partRow"></div>
+<div id="modeRow"><div class="seg" id="modeSeg"></div></div>
+<div style="height:16px"></div>
+
+<div id="paper">
+  <div id="statusbar">
+    <span id="statusMsg">아직 채점 전</span>
+    <span id="fillCount"></span>
+    <button class="btn" id="shuffleBtn" onclick="reBlank()">셔플 · 새 시험</button>
+    <button class="btn" id="hintBtn" onclick="toggleHint()">힌트(첫 글자)</button>
+    <button class="btn" onclick="resetView()">다시 풀기</button>
+    <button class="btn primary" onclick="gradeAll()">채점하기</button>
+  </div>
+  <div id="content"></div>
+  <footer>채점 후 애매한 답은 각 문항의 "정답 처리"로 선생님이 직접 인정할 수 있어요.</footer>
+</div>
+
+<script>
+// [화자/태그, 영어, 한국어]
+const DATA = {
+  "5": {
+    reading: [
+      { t: "Save the City on the Water", s: "Monica · 베네치아", items: [
+        ["", "Hello, friends! My name is Monica, and I live in Venice.", "안녕, 친구들! 내 이름은 Monica이고, 나는 베네치아에 살고 있어."],
+        ["", "Have you heard of Venice?", "베네치아에 대해 들어 본 적 있니?"],
+        ["", "It is a beautiful city on the water in Italy.", "그것은 이탈리아의 물 위에 있는 아름다운 도시야."],
+        ["", "Venice is famous for its canals and historic buildings.", "베네치아는 운하와 역사적으로 중요한 건물들로 유명해."],
+        ["", "Many tourists come to see them every year.", "많은 관광객들이 매년 그것들을 보러 와."],
+        ["", "But now, we have a big problem.", "그런데 지금, 우리는 큰 문제를 겪고 있어."],
+        ["", "Last week, the streets were flooded.", "지난주에 거리가 침수되었어."],
+        ["", "I couldn't go to school, and my parents' bakery had to close.", "나는 학교에 갈 수 없었고, 우리 부모님의 빵집은 문을 닫아야 했어."],
+        ["", "I had to wear tall rain boots all the time.", "나는 줄곧 긴 장화를 신어야 했어."],
+        ["", "I'm really worried.", "나는 정말 걱정돼."],
+        ["★", "The warmer the Earth gets, the higher the water in Venice rises.", "지구가 더 더워질수록 베네치아의 수위는 더 상승해."],
+        ["", "Venice could be underwater soon.", "베네치아는 곧 물에 잠길 수도 있어."],
+        ["", "My city needs your help!", "나의 도시는 너희들의 도움이 필요해!"]
+      ]},
+      { t: "Timothy from the United States", s: "Timothy의 답장", items: [
+        ["", "Hi, Monica! I'm Timothy from the United States.", "안녕, Monica! 나는 미국의 Timothy야."],
+        ["", "My family visited Venice three years ago and we loved it!", "우리 가족은 3년 전에 베네치아를 방문했고 우리는 그곳을 아주 좋아했어!"],
+        ["", "I am surprised and sad to hear your news.", "나는 네 소식을 들으니 놀랍고 슬퍼."],
+        ["", "I want to do my part to help your city and the Earth.", "나는 너희 도시와 지구를 돕기 위해 나의 역할을 하고 싶어."],
+        ["", "I recently found out something interesting.", "나는 최근에 흥미로운 것을 알게 됐어."],
+        ["★", "The more meat we eat, the hotter our planet gets.", "우리가 더 많은 고기를 먹을수록 우리의 행성은 더 뜨거워져."],
+        ["", "This is because lots of trees are cut down to make animal farms.", "이것은 동물 농장을 만들기 위해 많은 나무가 베어지기 때문이야."],
+        ["", "This increases greenhouse gases.", "이것은 온실가스를 증가시켜."],
+        ["", "Also, cows pass a lot of gas. Smelly!", "또한, 소는 많은 가스를 배출해. 냄새나!"],
+        ["", "But this is not the worst part.", "그런데 이것이 최악인 부분은 아니야."],
+        ["", "The gas from cows also adds to greenhouse gases.", "소에게서 나온 가스는 또한 온실가스에 추가돼."],
+        ["", "Greenhouse gases make the Earth hotter.", "온실가스는 지구를 더 뜨겁게 만들어."],
+        ["", "So, I'm trying to eat less meat to slow down global warming.", "그래서 나는 지구 온난화를 늦추기 위해 고기를 덜 먹으려고 노력하고 있어."],
+        ["★", "It isn't easy to change my eating habits, but I'm doing my best.", "나의 식습관을 바꾸는 건 쉽지 않지만, 나는 최선을 다하고 있어."]
+      ]},
+      { t: "Suin from Korea", s: "수인의 답장", items: [
+        ["", "Hello, I'm Suin from Korea.", "안녕, 나는 한국의 수인이야."],
+        ["", "Every summer, it rains a lot here.", "매년 여름에 여기는 비가 많이 와."],
+        ["", "Sometimes, we have floods and they are really scary.", "때때로 우리는 홍수를 겪고 그것들은 정말 무서워."],
+        ["", "The situation in Venice must be scary, too.", "베네치아의 상황도 무서울 게 틀림없어."],
+        ["", "I've never been to Venice, but I have seen many beautiful pictures of it.", "나는 베네치아에 가 본 적이 없지만, 그곳의 많은 아름다운 사진들을 본 적이 있어."],
+        ["", "I talked to my friends about the floods in your city.", "나는 너희 도시의 홍수에 관해 내 친구들과 이야기했어."],
+        ["", "We wanted to help Venice, so we started the 3R campaign.", "우리는 베네치아를 돕고 싶어서 3R 캠페인을 시작했어."],
+        ["", "The 3Rs are Recycle, Reuse, and Reduce.", "3R은 '재활용하다', '재사용하다', 그리고 '줄이다'야."],
+        ["", "Now, many students at my school are doing these three things every day.", "지금, 우리 학교에서 많은 학생들이 이 세 가지를 매일 하고 있어."],
+        ["★", "It is important to do our part for Venice.", "베네치아를 위해 우리의 역할을 하는 것이 중요해."],
+        ["", "Together, we can make a difference!", "함께, 우리는 변화를 만들 수 있어!"]
+      ]}
+    ],
+    dialogues: [
+      { t: "Topic 1 · A1", s: "에너지 절약", items: [
+        ["G", "We need to save energy to slow down global warming.", "우리는 지구 온난화를 늦추기 위해 에너지를 절약할 필요가 있어."],
+        ["B", "You're right. What can we do to save energy?", "네 말이 맞아. 우리가 에너지를 절약하기 위해 무엇을 할 수 있을까?"],
+        ["G", "We can use the air conditioner less often.", "우리는 에어컨을 덜 자주 사용할 수 있어."],
+        ["B", "Yeah. That would save a lot of energy.", "그래. 그것은 많은 에너지를 절약할 거야."],
+        ["G", "And don't forget to turn off the light when you leave a room.", "그리고 방을 나갈 때 전등을 끄는 걸 잊지 마."]
+      ]},
+      { t: "Topic 1 · A2", s: "플라스틱 쓰레기", items: [
+        ["B", "Look at all the plastic waste!", "저 모든 플라스틱 쓰레기를 봐!"],
+        ["G", "Oh, no! What can I do to reduce plastic waste?", "오, 안 돼! 내가 플라스틱 쓰레기를 줄이기 위해 무엇을 할 수 있을까?"],
+        ["B", "You can recycle plastic cups and bottles.", "너는 플라스틱 컵과 병을 재활용할 수 있어."],
+        ["G", "Okay. What else can I do?", "알겠어. 내가 또 무엇을 할 수 있을까?"],
+        ["B", "Don't forget to carry a reusable bottle.", "재사용할 수 있는 병을 가지고 다니는 걸 잊지 마."]
+      ]},
+      { t: "Topic 1 · A3", s: "대기 오염", items: [
+        ["G", "The air is terrible today.", "오늘 공기가 끔찍해."],
+        ["B", "Yeah. The sky looks gray. What can we do to reduce air pollution?", "응. 하늘이 회색으로 보여. 우리가 대기 오염을 줄이기 위해 무엇을 할 수 있을까?"],
+        ["G", "We can plant more trees.", "우리는 나무를 더 많이 심을 수 있어."],
+        ["B", "Right. Trees will help clean the air.", "맞아. 나무가 공기를 깨끗하게 하는 걸 도울 거야."],
+        ["G", "And don't forget to ride your bike or walk to nearby places.", "그리고 가까운 곳에는 자전거를 타거나 걸어가는 걸 잊지 마."]
+      ]},
+      { t: "Topic 1 · B", s: "업사이클링", items: [
+        ["G", "Eric, I like your bag! It's so cute.", "Eric, 네 가방이 마음에 들어! 그거 정말 귀엽다."],
+        ["B", "Thanks, Yena. I made it from old jeans.", "고마워, 예나야. 나는 오래된 청바지로 그것을 만들었어."],
+        ["G", "Really? That's amazing!", "정말? 그거 놀랍다!"],
+        ["B", "We can make new things from old things. It's called upcycling.", "우리는 오래된 물건들로 새로운 것들을 만들 수 있어. 그것은 업사이클링이라고 불려."],
+        ["G", "I'd like to try it. What can I do to start upcycling?", "나도 그것을 해 보고 싶어. 내가 업사이클링을 시작하기 위해 무엇을 할 수 있을까?"],
+        ["B", "First, you can find something you don't need.", "먼저, 네게 필요하지 않은 것을 찾아볼 수 있어."],
+        ["G", "Well, I have an old skirt at home.", "음, 집에 오래된 치마가 하나 있어."],
+        ["B", "Good. Then think about an item you want to make.", "좋아. 그다음에는 네가 만들고 싶은 물건에 대해 생각해 봐."],
+        ["G", "Oh, I want to make a pencil case.", "오, 나는 필통을 만들고 싶어."],
+        ["B", "Perfect. And don't forget to wash the skirt before upcycling.", "완벽해. 그리고 업사이클링 전에 치마를 세탁하는 걸 잊지 마."]
+      ]},
+      { t: "Topic 2 · A", s: "온라인 벼룩시장", items: [
+        ["Lucy", "Jake, are you throwing out that backpack?", "Jake, 너 그 배낭을 버리는 거니?"],
+        ["Jake", "Yeah. I don't really use it anymore.", "응. 나는 그것을 정말로 더 이상 사용하지 않아."],
+        ["Lucy", "But it looks new. These days, people throw out so many good items.", "하지만 그것은 새것처럼 보여. 요즘은 사람들이 너무 많은 좋은 물건들을 버려."],
+        ["Jake", "Right. Someone can still use my backpack. What can I do to find a new owner for it?", "맞아. 누군가는 아직 내 배낭을 사용할 수 있어. 내가 그것의 새로운 주인을 찾기 위해 무엇을 할 수 있을까?"],
+        ["Lucy", "You can sell it through an online flea market.", "너는 그것을 온라인 벼룩시장을 통해 팔 수 있어."],
+        ["Jake", "That sounds good. I'll give it a try.", "그거 좋은 것 같아. 한번 해 볼게."],
+        ["Lucy", "Great. Don't forget to post pictures of the backpack.", "좋아, 그 배낭의 사진들을 올리는 걸 잊지 마."],
+        ["Jake", "Thanks for the tip.", "조언 고마워."],
+        ["Lucy", "No problem!", "천만에!"]
+      ]},
+      { t: "Check Up · A", s: "소풍", items: [
+        ["G", "Brian, how about having a picnic tomorrow?", "Brian, 내일 소풍 가는 거 어때?"],
+        ["B", "Sounds good! What can we do to reduce waste at the picnic?", "좋아! 우리가 소풍에서 쓰레기를 줄이기 위해 무엇을 할 수 있을까?"],
+        ["G", "We can use reusable cups.", "우리는 재사용 가능한 컵을 사용할 수 있어."],
+        ["B", "Right. What else?", "맞아. 또 다른 건?"],
+        ["G", "Don't forget to bring reusable forks and spoons.", "재사용할 수 있는 포크와 숟가락을 가져오는 걸 잊지 마."],
+        ["B", "Sure, no problem. See you tomorrow!", "물론이지, 문제없어. 내일 보자!"]
+      ]},
+      { t: "Check Up · B", s: "대기 오염 · 식물", items: [
+        ["G", "Look at the sky! It's gray.", "하늘을 봐! 회색이야."],
+        ["B", "Yeah. Air pollution is a big problem.", "응. 대기 오염은 큰 문제야."],
+        ["G", "What can we do to reduce air pollution?", "우리가 대기 오염을 줄이기 위해 무엇을 할 수 있을까?"],
+        ["B", "Start with little things. For example, walk to nearby places.", "작은 것부터 시작해. 예를 들어, 가까운 곳에는 걸어가."],
+        ["G", "Oh, that's easy. Anything else?", "오, 그거 쉽네. 다른 건?"],
+        ["B", "Don't forget to care for your plants.", "너의 식물을 돌보는 걸 잊지 마."]
+      ]},
+      { t: "Check Up · C", s: "의류 기부", items: [
+        ["Tom", "What can I do to reduce clothing waste?", "내가 의류 쓰레기를 줄이기 위해 무엇을 할 수 있을까?"],
+        ["Amy", "You can buy less clothing.", "너는 옷을 덜 살 수 있어."],
+        ["Tom", "Okay. What else can I do?", "알겠어. 내가 또 무엇을 할 수 있을까?"],
+        ["Amy", "Don't forget to donate old clothing.", "오래된 옷을 기부하는 걸 잊지 마."]
+      ]}
+    ],
+    extra: [
+      { t: "After You Read · C", s: "북극곰 구하기", items: [
+        ["", "To save the polar bears, we have to slow down global warming.", "북극곰들을 구하기 위해, 우리는 지구 온난화를 늦춰야 해."],
+        ["", "The Earth is getting hotter because people use too much energy.", "사람들이 너무 많은 에너지를 사용하기 때문에 지구가 더 뜨거워지고 있어."],
+        ["", "I will walk to nearby places.", "나는 가까운 곳에는 걸어갈 거야."],
+        ["", "Also, I will turn off the lights when I go out.", "또한, 외출할 때는 전등을 끌 거야."]
+      ]},
+      { t: "My Writing", s: "Monica에게 보내는 이메일", items: [
+        ["", "I am Homin from Korea.", "나는 한국의 호민이야."],
+        ["", "I read your story about Venice.", "베네치아에 관한 너의 이야기를 읽었어."],
+        ["", "I want to do something to slow down global warming.", "나는 지구 온난화를 늦추기 위해 무언가를 하고 싶어."],
+        ["", "From now on, I'm going to walk or ride a bike to nearby places.", "이제부터, 나는 가까운 곳에는 걸어가거나 자전거를 타고 갈 거야."],
+        ["", "I'm also going to eat less meat because cows increase greenhouse gases.", "또한 소가 온실가스를 증가시키기 때문에 고기도 덜 먹을 거야."],
+        ["", "These are little things, but I'll do my part for Venice!", "이것들은 작은 일이지만, 나는 베네치아를 위해 내 역할을 할 거야!"],
+        ["", "I wish you good luck.", "행운을 빌어."]
+      ]},
+      { t: "Team Project", s: "지난주 환경 실천 보고", items: [
+        ["", "We tried many things to help the environment last week.", "우리는 지난주에 환경을 돕기 위해 많은 것을 시도했다."],
+        ["", "We always walked to nearby places.", "우리는 가까운 곳에는 항상 걸어갔다."],
+        ["", "We often took the stairs.", "우리는 자주 계단을 이용했다."],
+        ["", "However, we rarely used reusable bottles.", "하지만 우리는 재사용 가능한 병을 거의 사용하지 않았다."],
+        ["", "We never ate less meat.", "우리는 고기를 전혀 덜 먹지 않았다."],
+        ["", "We will do better from now on!", "우리는 이제부터 더 잘할 것이다!"]
+      ]}
+    ],
+    vocab: [
+      { t: "Word List 예문", s: "학교 유인물 · 33문장", items: [
+        ["", "He talked about games all the time.", "그는 내내 게임에 대해 이야기했다."],
+        ["", "Our family joined a campaign to save water at home.", "우리 가족은 집에서 물을 절약하는 캠페인에 참여했다."],
+        ["", "We walked by the canal and saw some boats.", "우리는 운하 옆을 걸으며 몇몇 배들을 봤다."],
+        ["", "I will do my best to win the race.", "나는 경주에서 이기기 위해 최선을 다할 것이다."],
+        ["", "We visited a strawberry farm last weekend.", "우리는 지난 주말에 딸기 농장에 방문했다."],
+        ["", "I will find out how to get to the museum.", "나는 박물관에 가는 방법을 알아볼 것이다."],
+        ["", "I sold my old bike at the flea market.", "나는 벼룩시장에서 나의 오래된 자전거를 팔았다."],
+        ["", "We stayed inside the house because of the flood.", "우리는 홍수 때문에 집 안에서 지냈다."],
+        ["", "We can help the global environment by planting trees.", "우리는 나무를 심어서 지구 환경을 도울 수 있다."],
+        ["", "Too many greenhouse gases can change the climate.", "너무 많은 온실가스는 날씨를 바꿀 수 있다."],
+        ["", "Drinking water is a healthy habit.", "물을 마시는 것은 건강한 습관이다."],
+        ["", "The city has many historic places.", "그 도시는 역사적인 장소가 많다."],
+        ["", "The company will increase its sales next year.", "그 회사는 내년의 판매량을 증가시킬 것이다."],
+        ["", "We went to a nearby restaurant for dinner.", "우리는 저녁을 먹으러 가까운 식당에 갔다."],
+        ["", "She played an important part in the game.", "그녀는 경기에서 중요한 역할을 했다."],
+        ["", "After a big meal, the pig passed gas.", "많은 양의 식사 후에, 그 돼지는 가스를 배출했다."],
+        ["", "I keep my pens in my pencil case.", "나는 나의 펜을 필통에 넣어둔다."],
+        ["", "Earth is the third planet from the Sun.", "지구는 태양으로부터 세 번째 행성이다."],
+        ["", "I planted flowers in the garden.", "나는 정원에 꽃을 심었다."],
+        ["", "The fish are in danger because of water pollution.", "물고기들이 수질 오염 때문에 위험에 처해 있다."],
+        ["", "He recently moved to a new house.", "그는 최근에 새집으로 이사했다."],
+        ["", "This store recycles used clothes.", "이 가게는 헌 옷을 재활용한다."],
+        ["", "We should reduce the use of plastic.", "우리는 플라스틱의 사용을 줄여야 한다."],
+        ["", "Let's use reusable shopping bags.", "재사용할 수 있는 쇼핑백을 사용하자."],
+        ["", "I always reuse the other side of the paper.", "나는 항상 종이의 다른 쪽 면을 재사용한다."],
+        ["", "The water level can rise after a huge rain.", "큰 비 이후에 수위가 올라갈 수 있다."],
+        ["", "The dark forest looked scary at night.", "그 어두운 숲은 밤에 무서워 보였다."],
+        ["", "She stayed calm in difficult situations.", "그녀는 어려운 상황에서도 침착했다."],
+        ["", "The speaker slowed down his speech for the children.", "그 연설자는 아이들을 위해 말의 속도를 늦추었다."],
+        ["", "The weather is terrible today.", "오늘 날씨가 매우 나쁘다."],
+        ["", "Many tourists visit Las Vegas to see the shows.", "많은 관광객들은 쇼를 보기 위해 라스베이거스에 방문한다."],
+        ["", "If the sea level rises, the island will be underwater.", "해수면이 상승하면, 그 섬은 물에 잠길 것이다."],
+        ["", "The park was full of waste after the big party.", "큰 파티 후 공원은 쓰레기로 가득했다."]
+      ]}
+    ]
+  },
+  "6": {
+    reading: [
+      { t: "Club News: Spreading Cheer Everywhere", s: "Fly High 응원 동아리", items: [
+        ["", "Let's meet Fly High, our school's cheerleading club.", "우리 학교의 응원 동아리 Fly High를 만나 봅시다."],
+        ["", "The club started from an idea of one student two years ago.", "그 동아리는 2년 전에 한 학생의 아이디어에서 시작되었습니다."],
+        ["", "Now, there are 10 girls and 6 boys in the club.", "현재 그 동아리에는 10명의 소녀와 6명의 소년이 있습니다."],
+        ["★", "Each member has a special energy.", "각 구성원은 특별한 에너지를 가지고 있습니다."],
+        ["", "Do you remember the recent school basketball game?", "여러분은 최근의 학교 농구 경기를 기억하나요?"],
+        ["", "After two quarters, our team was losing by 20 points.", "2쿼터 후에 우리 팀은 20점 차로 지고 있었습니다."],
+        ["", "During halftime, Fly High came on the court.", "하프 타임 동안, Fly High가 코트에 나왔습니다."],
+        ["", "They performed wonderfully.", "그들은 멋지게 공연했습니다."],
+        ["", "They flipped in the air and made a human pyramid.", "그들은 공중에서 돌았고 인간 피라미드를 만들었습니다."],
+        ["", "Then they shouted, \"Never give up!\"", "그러고 나서 그들은 \"절대 포기하지 마!\"라고 외쳤습니다."],
+        ["", "And guess what? Our team won the game in the end.", "그리고 어떻게 되었을까요? 결국 우리 팀이 경기에서 이겼습니다!"],
+        ["", "Jina, the captain of the club, said, \"I can flip in the air because I trust my club members.", "동아리의 회장인 지나가 말했습니다, \"저는 저희 동아리 구성원들을 믿기 때문에 공중에서 돌 수 있어요."],
+        ["★", "When I see the crowd cheering and screaming, I feel proud.", "저는 관중들이 응원하고 소리치는 것을 볼 때 자랑스럽습니다."],
+        ["", "Fly High is the best part of my middle school life!\"", "Fly High는 제 중학교 생활에서 최고의 부분이에요!\""],
+        ["★", "You can watch Fly High doing their performance at the school festival next week.", "여러분은 다음 주 학교 축제에서 Fly High가 공연하는 것을 볼 수 있습니다."],
+        ["", "Come and feel their energy!", "와서 그들의 에너지를 느껴 보세요!"]
+      ]},
+      { t: "Student Survey: Are You a Saver or a Spender?", s: "용돈 설문 조사", items: [
+        ["", "What do you do with your money?", "당신은 당신의 돈으로 무엇을 하나요?"],
+        ["", "Do you save it or spend it?", "그것을 저축하나요, 아니면 소비하나요?"],
+        ["", "We asked the following questions to 100 students from our school.", "우리는 우리 학교 학생 100명에게 다음의 질문을 했습니다."],
+        ["", "Let's look at the results.", "그 결과를 살펴봅시다."],
+        ["", "Do you have a spending plan?", "당신은 지출 계획을 가지고 있나요?"],
+        ["", "What do you spend the most money on?", "당신은 무엇에 가장 많은 돈을 쓰나요?"],
+        ["", "Do you save money?", "당신은 돈을 저축하나요?"],
+        ["", "Surprisingly, the survey showed that only 15 out of 100 students had a spending plan.", "놀랍게도, 설문 조사는 100명의 학생들 중 오직 15명만이 지출 계획을 가지고 있었다는 것을 보여 주었습니다."],
+        ["", "The survey also showed what the students spent the most money on.", "그 설문 조사는 또한 그 학생들이 무엇에 가장 많은 돈을 쓰는지 보여 주었습니다."],
+        ["", "Food was chosen by the largest number of students.", "음식이 가장 많은 수의 학생들에 의해 선택되었습니다."],
+        ["", "Transportation followed food.", "교통이 음식의 뒤를 이었습니다."],
+        ["", "Also, 80 percent of 3rd-year students saved money, but only 30 percent of 1st-year students saved money.", "또한, 3학년 학생의 80%는 돈을 저축했지만, 1학년 학생의 겨우 30%만이 돈을 저축했습니다."]
+      ]},
+      { t: "A Special Message from the Principal", s: "교장 선생님 말씀", items: [
+        ["", "Money doesn't grow on trees.", "돈은 나무에서 자라지 않습니다."],
+        ["", "Planning your spending is very important!", "여러분의 소비를 계획하는 것은 매우 중요합니다!"],
+        ["", "Everyone needs good spending habits.", "모든 사람은 좋은 지출 습관이 필요합니다."],
+        ["", "Next week, every student will get a money diary.", "다음 주에, 모든 학생들은 용돈 기입장을 받게 될 것입니다."]
+      ]},
+      { t: "Health News: Meet Our New Healthcare Robot", s: "Carebot", items: [
+        ["", "Come and meet Carebot, our new AI healthcare robot, in the school nurse's office.", "오셔서 학교 보건실에서 우리의 새로운 인공 지능 건강 관리 로봇인 Carebot을 만나 보세요."],
+        ["", "What can Carebot do?", "Carebot은 무엇을 할 수 있을까요?"],
+        ["", "It can check the students' health condition and give them advice.", "그것은 학생들의 건강 상태를 확인하고 그들에게 조언을 해 줄 수 있습니다."],
+        ["", "Our school nurse, Ms. Kang, says, \"Carebot is working hard to keep everyone healthy and safe.", "우리 학교 보건 선생님인 강 선생님은 말씀하십니다, \"Carebot은 모두를 건강하고 안전하게 하기 위해 열심히 일하고 있습니다."],
+        ["", "So, if you see Carebot, don't be shy and say hello.\"", "그러니 만약 여러분이 Carebot을 본다면, 수줍어하지 말고 인사하세요.\""]
+      ]}
+    ],
+    dialogues: [
+      { t: "Topic 1 · A1", s: "가족과의 식사", items: [
+        ["B", "I don't spend enough time with my family these days.", "나는 요즘 나의 가족과 충분한 시간을 보내지 않아."],
+        ["G", "Hmm. How often do you have dinner with your family, Minho?", "음. 네 가족과 얼마나 자주 저녁 식사를 하니, 민호야?"],
+        ["B", "I have dinner with my family twice a week.", "일주일에 두 번 나의 가족과 저녁을 먹어."],
+        ["G", "It's important to eat with your family more often.", "너의 가족과 더 자주 식사를 하는 것은 중요해."],
+        ["B", "Okay, I'll try.", "알겠어, 노력해 볼게."]
+      ]},
+      { t: "Topic 1 · A2", s: "책상 정리", items: [
+        ["G", "Where's my science book, Eric?", "내 과학책이 어디 있니, Eric?"],
+        ["B", "It's on my desk.", "그것은 내 책상 위에 있어."],
+        ["G", "Your desk is so messy. How often do you clean it?", "네 책상은 너무 지저분해. 너는 얼마나 자주 그것을 청소하니?"],
+        ["B", "I clean it once a month.", "한 달에 한 번 그것을 청소해."],
+        ["G", "Oh, no! It's important to keep your desk tidy.", "오, 안 돼! 네 책상을 깔끔하게 유지하는 것은 중요해."]
+      ]},
+      { t: "Topic 1 · A3", s: "수면 습관", items: [
+        ["B", "I feel tired these days.", "나는 요즘 피곤해."],
+        ["G", "How often do you get enough sleep, Sejun?", "너는 얼마나 자주 충분한 잠을 자니, 세준아?"],
+        ["B", "Once a week. I usually stay up late watching videos.", "일주일에 한 번. 보통 영상을 보느라 늦게까지 깨어 있어."],
+        ["G", "It's important to get eight hours of sleep every night.", "매일 밤 8시간의 잠을 자는 것이 중요해."],
+        ["B", "You're right. I'll try to go to bed earlier.", "네 말이 맞아. 더 일찍 잠자리에 들도록 노력할게."],
+        ["G", "Great. Good sleep makes a big difference.", "좋아. 잘 자는 것은 큰 차이를 만들어."]
+      ]},
+      { t: "Topic 1 · B", s: "셀카 습관 기사", items: [
+        ["G", "What are you reading, Liam?", "너는 무엇을 읽고 있니, Liam?"],
+        ["B", "I'm reading an article about teens' selfie habits.", "십 대들의 셀카 습관에 관한 기사를 읽고 있어."],
+        ["G", "That's interesting. How often do teens take selfies?", "그거 흥미롭다. 십 대들은 얼마나 자주 셀카를 찍니?"],
+        ["B", "It says many teens take selfies every day.", "많은 십 대들이 매일 셀카를 찍는다고 쓰여 있어."],
+        ["G", "Wow! I often see my friends posting their selfies on social media.", "와! 나는 내 친구들이 소셜 미디어에 자신의 셀카를 게시하는 것을 자주 봐."],
+        ["B", "The article also says it's important to be careful about sharing selfies online.", "기사에는 또한 온라인에서 셀카를 공유하는 것에 대해 조심하는 것이 중요하다고 쓰여 있어."],
+        ["G", "Why is that important?", "그게 왜 중요해?"],
+        ["B", "Because selfies can have personal information in them.", "왜냐하면 셀카는 그 안에 개인 정보가 있을 수 있기 때문이야."],
+        ["G", "Right. Anyone can see that information.", "맞아. 누구나 그 정보를 볼 수 있지."],
+        ["B", "Yeah. We should think twice before posting selfies.", "응. 우리는 셀카를 게시하기 전에 두 번 생각해야 해."]
+      ]},
+      { t: "Topic 2 · A", s: "시험 스트레스 상담", items: [
+        ["Jake", "Ms. Hong, may I come in?", "홍 선생님, 제가 들어가도 될까요?"],
+        ["Ms. Hong", "Sure, Jake. What's wrong?", "물론이지, Jake. 무슨 일이니?"],
+        ["Jake", "I feel stressed about the exams next week.", "저는 다음 주 시험에 대해 스트레스를 받아요."],
+        ["Ms. Hong", "Oh, no. How often do you feel this way?", "오, 저런. 얼마나 자주 이렇게 느끼니?"],
+        ["Jake", "Almost every time I think about exams.", "제가 시험에 대해 생각할 때마다 거의 매번이요."],
+        ["Ms. Hong", "I understand. It's important to manage your stress during exams.", "이해해. 시험 기간에 너의 스트레스를 관리하는 것은 중요하단다."],
+        ["Jake", "But I don't know how. What should I do?", "하지만 방법을 모르겠어요. 제가 무엇을 해야 하나요?"],
+        ["Ms. Hong", "You can take a walk and get some fresh air. Also, you can do some stretching.", "너는 산책하며 신선한 공기를 좀 마실 수 있어. 또한, 스트레칭을 좀 할 수도 있어."],
+        ["Jake", "Those are great tips. I will try them.", "그것들은 좋은 조언이네요. 그것들을 해 볼게요."],
+        ["Ms. Hong", "Studying with your friends can also lower your stress.", "네 친구들과 함께 공부하는 것 또한 너의 스트레스를 낮출 수 있단다."],
+        ["Jake", "Okay. Thank you for your advice!", "알겠어요. 조언해 주셔서 감사합니다!"]
+      ]},
+      { t: "Topic 2 · B", s: "종이비행기 조언", items: [
+        ["G", "Let me read this paper airplane.", "제가 이 종이비행기를 읽어 볼게요."],
+        ["G", "\"I feel stressed once a week.", "\"나는 일주일에 한 번 스트레스를 받아."],
+        ["G", "My biggest stress is playing basketball.", "나의 가장 큰 스트레스는 농구를 하는 거야."],
+        ["G", "I'm not good at it.\"", "나는 그것을 잘하지 못해.\""],
+        ["G", "Here's my advice.", "여기 제 조언이 있습니다."],
+        ["G", "\"It's important to practice every day.", "\"매일 연습하는 것이 중요해."],
+        ["G", "Don't worry.", "걱정하지 마."],
+        ["G", "You'll get better.\"", "너는 나아질 거야.\""]
+      ]},
+      { t: "Check Up · A", s: "개 산책", items: [
+        ["B", "My dog doesn't have energy lately.", "나의 개는 최근에 기운이 없어."],
+        ["G", "How often do you walk your dog?", "너는 얼마나 자주 너의 개를 산책시키니?"],
+        ["B", "I walk him twice a week.", "나는 그를 일주일에 두 번 산책시켜."],
+        ["G", "It's important to walk your dog every day. That way, he can stay healthy.", "너의 개를 매일 산책시키는 것이 중요해. 그런 식으로, 그는 건강을 유지할 수 있어."],
+        ["B", "Okay, I'll start walking him every day.", "알겠어, 그를 매일 산책시키는 것을 시작할게."]
+      ]},
+      { t: "Check Up · B", s: "스페인어 연습", items: [
+        ["G", "I'm learning Spanish these days.", "나는 요즘 스페인어를 배우고 있어."],
+        ["B", "Wow! I didn't know that. How's it going?", "와! 나는 그걸 몰랐네. 어떻게 되어 가고 있어?"],
+        ["G", "Not very well. I'm not good at Spanish.", "별로 잘 안 돼. 나는 스페인어를 잘하지 못해."],
+        ["B", "How often do you practice it?", "너는 그것을 얼마나 자주 연습하니?"],
+        ["G", "Once a week.", "일주일에 한 번."],
+        ["B", "It's important to practice it more often.", "그것을 더 자주 연습하는 것이 중요해."],
+        ["G", "You're right. I'll practice it three times a week.", "네 말이 맞아. 그것을 일주일에 세 번 연습할 거야."]
+      ]}
+    ],
+    extra: [
+      { t: "My Writing", s: "Exciting Sports Day", items: [
+        ["", "Woori Middle School held a sports day on October 2nd at the school playground.", "우리중학교는 10월 2일에 학교 운동장에서 운동회를 열었다."],
+        ["", "One of the biggest events was the final soccer game between Class 1 and 3.", "가장 큰 행사 중 하나는 1반과 3반 사이의 축구 결승전이었다."],
+        ["", "All the students came to cheer for the two classes.", "모든 학생들이 두 반을 응원하기 위해 왔다."],
+        ["", "Class 3 won the game, 3 to 2.", "3반이 3대 2로 이겼다."],
+        ["", "Jinwoo scored the winning goal and became the MVP of the game.", "진우가 결승골을 넣고 경기의 최우수 선수가 되었다."],
+        ["", "The game was so exciting.", "경기는 매우 흥미진진했다."],
+        ["", "Everyone had a great time!", "모두가 즐거운 시간을 보냈다!"]
+      ]},
+      { t: "Team Project", s: "Pages from Our School Year", items: [
+        ["Sports Day", "The final soccer game was the biggest event.", "축구 결승전은 가장 큰 행사였다."],
+        ["Sports Day", "We cheered for Class 1 and 3 at the school playground.", "우리는 학교 운동장에서 1반과 3반을 응원했다."],
+        ["Photo Contest", "We won first place in a school photo contest.", "우리는 학교 사진 경연 대회에서 1등을 했다."],
+        ["Photo Contest", "This photo was taken in front of a huge tree.", "이 사진은 거대한 나무 앞에서 찍혔다."],
+        ["Volunteer Day", "We picked up trash while jogging.", "우리는 조깅하면서 쓰레기를 주웠다."],
+        ["Volunteer Day", "It was good for the Earth and our health.", "그것은 지구와 우리의 건강에 좋았다."],
+        ["Field Trip", "We went to an amusement park.", "우리는 놀이공원에 갔다."],
+        ["Field Trip", "We tried many rides, and we watched an amazing parade!", "많은 놀이기구를 타 보았고 멋진 퍼레이드를 보았다!"]
+      ]},
+      { t: "Check Up", s: "교내 방송", items: [
+        ["W", "Good morning, students.", "안녕하세요, 학생 여러분."],
+        ["W", "Today, I want to tell you something important.", "오늘 저는 여러분에게 중요한 것을 말씀드리고 싶습니다."],
+        ["W", "In the last few days, I heard some students talking loudly in the library.", "지난 며칠 동안, 저는 도서관에서 몇몇 학생들이 큰 소리로 이야기하는 것을 들었습니다."],
+        ["W", "Every student must be quiet in the library.", "모든 학생은 도서관에서 조용히 해야 합니다."],
+        ["W", "Let's follow this rule.", "이 규칙을 따르도록 합시다."]
+      ]}
+    ]
+  }
+};
+
+const PARTS = [["reading", "Reading"], ["dialogues", "Dialogues"], ["extra", "Extra Reading"], ["vocab", "단어 예문"]];
+const MODES = [["write", "뜻 보고 영작"], ["blank", "빈칸 채우기"]];
+let cur = { lesson: "5", part: "reading", mode: "write" };
+const store = {};   // viewKey → { ans:{}, blanks:{}, graded:{}, over:{}, hint:false }
+
+function vk() { return cur.lesson + "|" + cur.part + "|" + cur.mode; }
+function st() { return store[vk()] = store[vk()] || { ans: {}, blanks: {}, graded: null, over: {}, hint: false }; }
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function norm(s) { return s.toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9]/g, ""); }
+
+const STOP = new Set(["the","a","an","and","or","but","to","of","in","on","at","is","are","was","were","i","you","we","they","he","she","it","its","my","your","our","their","for","with","so","do","did","does","can","will","be","not","no","too","this","that","these","those","me","him","her","them","us"]);
+
+function flatItems() {
+  let n = 0;
+  const out = [];
+  DATA[cur.lesson][cur.part].forEach((sec, si) => {
+    sec.items.forEach((it, ii) => { out.push({ n: ++n, si, ii, tag: it[0], en: it[1], ko: it[2] }); });
+  });
+  return out;
+}
+
+// 빈칸 뽑기: 내용어 위주 랜덤 선택
+function pickBlanks(en) {
+  const toks = en.split(" ");
+  const idxs = toks.map((t, i) => ({ i, core: t.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g, "") }))
+    .filter(o => /^[A-Za-z']{3,}$/.test(o.core) && !STOP.has(o.core.toLowerCase()))
+    .map(o => o.i);
+  const count = Math.min(3, Math.max(1, Math.floor(idxs.length / 3)));
+  for (let i = idxs.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [idxs[i], idxs[j]] = [idxs[j], idxs[i]]; }
+  return idxs.slice(0, count).sort((a, b) => a - b);
+}
+
+function ensureBlanks() {
+  const s = st();
+  flatItems().forEach(f => { if (!s.blanks[f.n]) s.blanks[f.n] = pickBlanks(f.en); });
+}
+
+function render() {
+  document.getElementById("lessonTabs").innerHTML = ["5", "6"].map(l =>
+    '<button class="' + (cur.lesson === l ? "on" : "") + '" onclick="setView(\'' + l + '\',null,null)">Lesson ' + l + "</button>").join("");
+  document.getElementById("partRow").innerHTML = PARTS.filter(p => DATA[cur.lesson][p[0]]).map(p =>
+    '<button class="' + (cur.part === p[0] ? "on" : "") + '" onclick="setView(null,\'' + p[0] + '\',null)">' + p[1] + "</button>").join("");
+  document.getElementById("modeSeg").innerHTML = MODES.map(m =>
+    '<button class="' + (cur.mode === m[0] ? "on" : "") + '" onclick="setView(null,null,\'' + m[0] + '\')">' + m[1] + "</button>").join("");
+  document.getElementById("shuffleBtn").style.display = cur.mode === "blank" ? "" : "none";
+  document.getElementById("hintBtn").style.display = cur.mode === "blank" ? "" : "none";
+  document.getElementById("hintBtn").classList.toggle("hinton", st().hint);
+
+  if (cur.mode === "blank") ensureBlanks();
+  const s = st();
+  const flats = flatItems();
+  const bySec = {};
+  flats.forEach(f => (bySec[f.si] = bySec[f.si] || []).push(f));
+
+  const content = document.getElementById("content");
+  content.innerHTML = DATA[cur.lesson][cur.part].map((sec, si) => {
+    const items = bySec[si] || [];
+    const r0 = String(items[0].n).padStart(2, "0"), r1 = String(items[items.length - 1].n).padStart(2, "0");
+    return '<div class="section"><div class="sechead"><span class="range">' + r0 + "–" + r1 + '</span><span class="st">' + esc(sec.t) + '</span><span class="ss">' + esc(sec.s) + "</span></div>" +
+      items.map(f => renderItem(f, s)).join("") + "</div>";
+  }).join("");
+  updateFill();
+  if (s.graded) applyGrades(false);
+  else document.getElementById("statusMsg").textContent = "아직 채점 전";
+}
+
+function renderItem(f, s) {
+  const tag = f.tag && f.tag !== "★" ? '<span class="sp">' + esc(f.tag) + "</span>" : "";
+  const star = f.tag === "★" ? '<span class="sp" title="교과서 강조 문장">★</span>' : "";
+  let body;
+  if (cur.mode === "write") {
+    body = '<div class="top"><span class="no">' + String(f.n).padStart(2, "0") + "</span>" + tag + star +
+      '<span class="ko">' + esc(f.ko) + "</span></div>" +
+      '<input class="writein" data-n="' + f.n + '" value="' + esc(s.ans[f.n] || "") + '" placeholder="Write the English sentence..." autocomplete="off" spellcheck="false">';
+  } else {
+    const toks = f.en.split(" ");
+    const bl = s.blanks[f.n];
+    const parts = toks.map((t, i) => {
+      if (!bl.includes(i)) return esc(t);
+      const core = t.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g, "");
+      const pre = t.slice(0, t.indexOf(core[0]));
+      const suf = t.slice(t.indexOf(core) + core.length);
+      const val = (s.ans[f.n] || {})[i] || "";
+      const ph = s.hint ? core[0] + "…" : "";
+      return esc(pre) + '<input class="blank' + (s.hint ? " hint" : "") + '" data-n="' + f.n + '" data-i="' + i +
+        '" size="' + Math.max(4, core.length) + '" value="' + esc(val) + '" placeholder="' + ph + '" autocomplete="off" spellcheck="false">' + esc(suf);
+    });
+    body = '<div class="top"><span class="no">' + String(f.n).padStart(2, "0") + "</span>" + tag + star +
+      '<span class="en-line">' + parts.join(" ") + "</span></div>" +
+      '<div class="ko" style="margin:6px 0 0 34px; color:var(--muted); font-size:13.5px;">' + esc(f.ko) + "</div>";
+  }
+  return '<div class="item" data-n="' + f.n + '"><span class="verdict"></span>' + body + '<div class="answer"></div></div>';
+}
+
+document.addEventListener("input", e => {
+  const s = st();
+  if (e.target.classList.contains("writein")) s.ans[e.target.dataset.n] = e.target.value;
+  else if (e.target.classList.contains("blank")) {
+    const n = e.target.dataset.n;
+    s.ans[n] = s.ans[n] || {};
+    s.ans[n][e.target.dataset.i] = e.target.value;
+  } else return;
+  updateFill();
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const cls = e.target.classList;
+  if (!cls.contains("writein") && !cls.contains("blank")) return;
+  const all = [...document.querySelectorAll(".writein, .blank")];
+  const next = all[all.indexOf(e.target) + 1];
+  if (next) { next.focus(); next.scrollIntoView({ block: "center" }); }
+});
+
+function updateFill() {
+  const flats = flatItems(), s = st();
+  let done = 0;
+  flats.forEach(f => {
+    const a = s.ans[f.n];
+    if (cur.mode === "write") { if (a && a.trim()) done++; }
+    else if (a && s.blanks[f.n].every(i => (a[i] || "").trim())) done++;
+  });
+  document.getElementById("fillCount").textContent = "작성 " + done + " / " + flats.length;
+}
+
+function setView(l, p, m) {
+  if (l) cur.lesson = l;
+  if (!DATA[cur.lesson][cur.part]) cur.part = "reading";   // 6과엔 아직 단어 유인물이 없음
+  if (p) cur.part = p;
+  if (m) cur.mode = m;
+  render();
+  window.scrollTo({ top: 0 });
+}
+
+function resetView() {
+  const s = st();
+  s.ans = {}; s.graded = null; s.over = {};
+  render();
+}
+function reBlank() {
+  const s = st();
+  s.blanks = {}; s.ans = {}; s.graded = null; s.over = {};
+  render();
+}
+function toggleHint() {
+  const s = st(); s.hint = !s.hint; render();
+}
+
+function gradeAll() {
+  const s = st();
+  s.graded = {};
+  flatItems().forEach(f => {
+    if (cur.mode === "write") {
+      s.graded[f.n] = norm(s.ans[f.n] || "") === norm(f.en);
+    } else {
+      const toks = f.en.split(" "), a = s.ans[f.n] || {};
+      s.graded[f.n] = s.blanks[f.n].every(i => {
+        const core = toks[i].replace(/^[^A-Za-z']+|[^A-Za-z']+$/g, "");
+        return norm(a[i] || "") === norm(core);
+      });
+    }
+  });
+  applyGrades(true);
+}
+
+function applyGrades(scroll) {
+  const s = st();
+  let ok = 0, over = 0, wrong = 0;
+  flatItems().forEach(f => {
+    const card = document.querySelector('.item[data-n="' + f.n + '"]');
+    const v = card.querySelector(".verdict");
+    const ansBox = card.querySelector(".answer");
+    card.classList.remove("correct", "wrong", "override");
+    const pass = s.graded[f.n], od = s.over[f.n];
+    if (pass) { ok++; card.classList.add("correct"); v.textContent = "정답"; v.className = "verdict g"; ansBox.innerHTML = ""; card.querySelector(".overbtn")?.remove(); }
+    else {
+      if (od) { over++; card.classList.add("override"); v.textContent = "선생님 인정"; v.className = "verdict o"; }
+      else { wrong++; card.classList.add("wrong"); v.textContent = "오답"; v.className = "verdict b"; }
+      ansBox.innerHTML = "정답: <b>" + esc(f.en) + "</b>";
+      if (!card.querySelector(".overbtn")) {
+        const b = document.createElement("button");
+        b.className = "overbtn"; b.onclick = () => { s.over[f.n] = !s.over[f.n]; applyGrades(false); };
+        ansBox.after(b);
+      }
+      const b = card.querySelector(".overbtn");
+      b.classList.toggle("on", !!od);
+      b.textContent = od ? "✓ 선생님 인정됨 (취소)" : "정답 처리";
+    }
+  });
+  const total = flatItems().length;
+  document.getElementById("statusMsg").innerHTML =
+    "<b class='g'>" + (ok + over) + "</b> / " + total + " 정답　·　자동 <b class='g'>" + ok + "</b> · 인정 <b class='o'>" + over + "</b> · 오답 <b class='b'>" + wrong + "</b>";
+  if (scroll) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+render();
+</script>
+</body>
+</html>

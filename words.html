@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>5과 단어 시험장</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --bg: #f7f8f5;
+    --surface: #ffffff;
+    --ink: #1f2823;
+    --muted: #6b7570;
+    --line: #dde3dd;
+    --accent: #2f7d4f;
+    --accent-ink: #ffffff;
+    --accent-soft: #e7f1ea;
+    --good: #2f7d4f;
+    --bad: #c14a3a;
+    --over: #b07a1f;
+    --chip-bg: #f0f3ef;
+    --shadow: 0 1px 3px rgba(31, 40, 35, .08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  /* ── 상단 바 ── */
+  #topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+  #topbar .inner {
+    max-width: 760px; margin: 0 auto; padding: 12px 20px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  #topbar h1 { font-size: 17px; font-weight: 700; letter-spacing: -.2px; }
+  #topbar h1 small { font-weight: 500; color: var(--muted); font-size: 12px; margin-left: 6px; }
+  #progress { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; margin-left: auto; }
+  button {
+    font-family: inherit; font-size: 14px; font-weight: 500;
+    padding: 7px 14px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+
+  /* 시험 종류 탭 */
+  #typeRow { max-width: 760px; margin: 14px auto 0; padding: 0 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  #typeRow button { font-size: 13px; border-radius: 999px; padding: 6px 16px; color: var(--muted); }
+  #typeRow button.on { background: var(--ink); border-color: var(--ink); color: var(--surface); font-weight: 700; }
+
+  /* ── 점수판 ── */
+  #scoreboard {
+    max-width: 760px; margin: 14px auto 0; padding: 14px 20px;
+    display: none; gap: 20px; align-items: baseline; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  }
+  #scoreboard.show { display: flex; }
+  #scoreboard .big { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  #scoreboard .big span { color: var(--muted); font-size: 15px; font-weight: 500; }
+  #scoreboard .detail { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+  #scoreboard .detail b.g { color: var(--good); }
+  #scoreboard .detail b.o { color: var(--over); }
+  #scoreboard .detail b.b { color: var(--bad); }
+  @media (max-width: 800px) { #scoreboard { margin: 14px 16px 0; } }
+
+  /* ── 문항 카드 ── */
+  #list { max-width: 760px; margin: 16px auto 60px; padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px 14px 18px; position: relative;
+  }
+  .card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    border-radius: 10px 0 0 10px; background: transparent;
+  }
+  .card.correct::before { background: var(--good); }
+  .card.wrong::before { background: var(--bad); }
+  .card.override::before { background: var(--over); }
+
+  .card .head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .card .no { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; min-width: 20px; }
+  .card .word { font-family: "Lora", Georgia, serif; font-size: 21px; font-weight: 600; letter-spacing: .1px; }
+  .card .def { font-family: "Lora", Georgia, serif; font-size: 16px; font-weight: 500; flex: 1; min-width: 200px; }
+  .card .exline { font-family: "Lora", Georgia, serif; font-size: 16.5px; line-height: 2; flex: 1; min-width: 200px; }
+  .badge {
+    font-size: 11px; font-weight: 700; letter-spacing: .5px;
+    padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+  }
+  .verdict { margin-left: auto; font-size: 12px; font-weight: 700; }
+  .verdict.g { color: var(--good); }
+  .verdict.b { color: var(--bad); }
+  .verdict.o { color: var(--over); }
+
+  .card .row { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+  .poschips { display: flex; gap: 6px; }
+  .poschips label {
+    font-size: 13px; font-weight: 500; padding: 4px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--chip-bg); cursor: pointer; user-select: none;
+  }
+  .poschips label:has(input:checked) { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+  .poschips input { position: absolute; opacity: 0; width: 0; }
+  .poschips label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .meaning, .wordin {
+    font-family: inherit; font-size: 15px; color: var(--ink);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+    padding: 8px 12px;
+  }
+  .meaning { flex: 1; min-width: 200px; }
+  .wordin { width: 200px; font-family: "Lora", Georgia, serif; }
+  .meaning:focus, .wordin:focus, .blank:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .meaning::placeholder, .wordin::placeholder { color: var(--muted); opacity: .7; }
+  .blank {
+    font-family: "Lora", Georgia, serif; font-size: 15.5px; color: var(--ink);
+    background: var(--bg); border: none; border-bottom: 2px solid var(--accent);
+    padding: 1px 6px; text-align: center;
+  }
+  .exko { margin-top: 6px; margin-left: 30px; color: var(--muted); font-size: 13.5px; }
+
+  .result { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 13px; }
+  .card.graded .result { display: block; }
+  .result .fail { color: var(--bad); font-weight: 700; margin-right: 8px; }
+  .result .ans { color: var(--muted); margin-top: 2px; }
+  .result .ans b { color: var(--ink); font-weight: 500; }
+  .result .ans .pl { color: var(--accent); font-weight: 700; margin-right: 2px; }
+  .result .ans .exq { font-family: "Lora", Georgia, serif; }
+  .overbtn { margin-top: 8px; font-size: 12px; padding: 4px 10px; }
+  .overbtn.on { background: var(--over); border-color: var(--over); color: #fff; }
+  .note { font-size: 11px; color: var(--over); font-weight: 700; margin-left: 6px; }
+
+  footer { max-width: 760px; margin: 0 auto 40px; padding: 0 16px; color: var(--muted); font-size: 12px; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="inner">
+    <h1>5과 단어 시험장<small id="subTitle"></small></h1>
+    <span id="progress"></span>
+    <button onclick="shuffleAll()">🔀 셔플</button>
+    <button class="primary" onclick="gradeAll()">채점하기</button>
+  </div>
+</div>
+
+<div id="typeRow"></div>
+
+<div id="scoreboard">
+  <div class="big"><span id="scoreN">0</span><span id="scoreT"> / 0</span></div>
+  <div class="detail">자동 정답 <b class="g" id="cAuto">0</b> · 선생님 인정 <b class="o" id="cOver">0</b> · 오답 <b class="b" id="cWrong">0</b></div>
+</div>
+
+<div id="list"></div>
+
+<footer id="footNote"></footer>
+
+<script>
+// ════════ 시험 1: 교과서 WORDS (60문항) ════════
+// mean: 품사 블록 배열. groups = 서로 다른 의미(전부/하나 필요), 그룹 안 배열 = 동의어(하나면 인정)
+// all: true → 모든 그룹 필수 (part, save)
+const WORDS = [
+  { w: "bakery", pos: ["명"], mean: [{ pos: "명", groups: [["빵집", "제과점"]] }] },
+  { w: "campaign", pos: ["명"], mean: [{ pos: "명", groups: [["캠페인", "운동"]] }] },
+  { w: "canal", pos: ["명"], mean: [{ pos: "명", groups: [["운하", "수로"]] }] },
+  { w: "contact", pos: ["명", "동"], mean: [{ pos: "명", groups: [["연락", "접촉"]] }, { pos: "동", groups: [["연락하다"]] }] },
+  { w: "die", pos: ["동"], mean: [{ pos: "동", groups: [["죽다"]] }] },
+  { w: "difference", pos: ["명"], mean: [{ pos: "명", groups: [["차이", "다름"]] }] },
+  { w: "donate", pos: ["동"], mean: [{ pos: "동", groups: [["기부하다"]] }] },
+  { w: "environment", pos: ["명"], mean: [{ pos: "명", groups: [["환경"]] }] },
+  { w: "farm", pos: ["명"], mean: [{ pos: "명", groups: [["농장"]] }] },
+  { w: "flea market", pos: ["명"], mean: [{ pos: "명", groups: [["벼룩시장"]] }] },
+  { w: "flood", pos: ["동", "명"], mean: [{ pos: "동", groups: [["침수시키다"]] }, { pos: "명", groups: [["홍수"]] }] },
+  { w: "forget", pos: ["동"], mean: [{ pos: "동", groups: [["잊다", "잊어버리다"]] }] },
+  { w: "global", pos: ["형"], mean: [{ pos: "형", groups: [["지구의"], ["세계적인"]] }] },
+  { w: "habit", pos: ["명"], mean: [{ pos: "명", groups: [["버릇", "습관"]] }] },
+  { w: "historic", pos: ["형"], mean: [{ pos: "형", groups: [["역사적으로 중요한"]] }] },
+  { w: "increase", pos: ["동"], mean: [{ pos: "동", groups: [["늘리다", "증가시키다", "증가하다"]] }] },
+  { w: "leave", pos: ["동"], mean: [{ pos: "동", groups: [["떠나다"], ["남기다"]] }] },
+  { w: "melt", pos: ["동"], mean: [{ pos: "동", groups: [["녹다"]] }] },
+  { w: "nearby", pos: ["형"], mean: [{ pos: "형", groups: [["가까운"]] }] },
+  { w: "owner", pos: ["명"], mean: [{ pos: "명", groups: [["주인"]] }] },
+  { w: "part", pos: ["명"], all: true, mean: [{ pos: "명", groups: [["부분"], ["부품"], ["역할"]] }] },
+  { w: "pass", pos: ["동"], mean: [{ pos: "동", groups: [["지나가다"], ["합격하다"], ["배출하다", "내보내다"]] }] },
+  { w: "planet", pos: ["명"], mean: [{ pos: "명", groups: [["행성"]] }] },
+  { w: "plant", pos: ["명", "동"], mean: [{ pos: "명", groups: [["식물"]] }, { pos: "동", groups: [["심다"]] }] },
+  { w: "pollution", pos: ["명"], mean: [{ pos: "명", groups: [["오염"]] }] },
+  { w: "post", pos: ["동"], mean: [{ pos: "동", groups: [["올리다", "게시하다"], ["발송하다"]] }] },
+  { w: "rarely", pos: ["부"], mean: [{ pos: "부", groups: [["좀처럼 ~하지 않는", "좀처럼 하지 않는", "좀처럼 ~않", "거의 ~하지 않"]] }] },
+  { w: "recently", pos: ["부"], mean: [{ pos: "부", groups: [["최근에", "최근"]] }] },
+  { w: "recycle", pos: ["동"], mean: [{ pos: "동", groups: [["재활용하다"]] }] },
+  { w: "reduce", pos: ["동"], mean: [{ pos: "동", groups: [["줄이다"]] }] },
+  { w: "reuse", pos: ["동"], mean: [{ pos: "동", groups: [["재사용하다"]] }] },
+  { w: "rise", pos: ["동"], mean: [{ pos: "동", groups: [["오르다", "올라가다", "뜨다"]] }] },
+  { w: "save", pos: ["동"], all: true, mean: [{ pos: "동", groups: [["구하다"], ["절약하다"], ["모으다"], ["저장하다"]] }] },
+  { w: "scary", pos: ["형"], mean: [{ pos: "형", groups: [["무서운", "겁나는"]] }] },
+  { w: "situation", pos: ["명"], mean: [{ pos: "명", groups: [["상황"]] }] },
+  { w: "smelly", pos: ["형"], mean: [{ pos: "형", groups: [["냄새나는", "냄새 나는"]] }] },
+  { w: "sometimes", pos: ["부"], mean: [{ pos: "부", groups: [["가끔", "때때로"]] }] },
+  { w: "straw", pos: ["명"], mean: [{ pos: "명", groups: [["짚", "빨대"]] }] },
+  { w: "surprised", pos: ["형"], mean: [{ pos: "형", groups: [["놀란"]] }] },
+  { w: "terrible", pos: ["형"], mean: [{ pos: "형", groups: [["끔찍한"]] }] },
+  { w: "tourist", pos: ["명"], mean: [{ pos: "명", groups: [["관광객"]] }] },
+  { w: "underwater", pos: ["형", "부"], mean: [{ pos: "형", groups: [["물속의", "수중의"]] }, { pos: "부", groups: [["물속에서"]] }] },
+  { w: "upcycling", pos: ["명"], mean: [{ pos: "명", groups: [["업사이클링"]] }] },
+  { w: "waste", pos: ["동", "명"], mean: [{ pos: "동", groups: [["낭비하다"]] }, { pos: "명", groups: [["낭비", "쓰레기"]] }] },
+  { w: "all the time", phrase: true, mean: [{ groups: [["줄곧", "내내"]] }] },
+  { w: "be interested in", phrase: true, mean: [{ groups: [["관심이 있다", "~에 관심이 있다"]] }] },
+  { w: "care for", phrase: true, mean: [{ groups: [["보살피다", "돌보다"]] }] },
+  { w: "cut down", phrase: true, mean: [{ groups: [["베다"]] }] },
+  { w: "do one's best", phrase: true, mean: [{ groups: [["최선을 다하다"]] }] },
+  { w: "find out", phrase: true, mean: [{ groups: [["알아내다", "알게 되다"]] }] },
+  { w: "for example", phrase: true, mean: [{ groups: [["예를 들어"]] }] },
+  { w: "from now on", phrase: true, mean: [{ groups: [["이제부터", "지금부터"]] }] },
+  { w: "give it a try", phrase: true, mean: [{ groups: [["시도하다", "한번 해 보다", "한번 해보다"]] }] },
+  { w: "in danger", phrase: true, mean: [{ groups: [["위험에 처한", "위험에 빠진"]] }] },
+  { w: "make a difference", phrase: true, mean: [{ groups: [["변화를 가져오다", "차이를 만들다"]] }] },
+  { w: "not ~ anymore", phrase: true, mean: [{ groups: [["더 이상 ~ 않다", "더 이상 않다", "더이상 ~않다"]] }] },
+  { w: "slow down", phrase: true, mean: [{ groups: [["늦추다"]] }] },
+  { w: "these days", phrase: true, mean: [{ groups: [["요즘", "요즈음"]] }] },
+  { w: "throw out", phrase: true, mean: [{ groups: [["버리다"]] }] },
+  { w: "turn off", phrase: true, mean: [{ groups: [["끄다"]] }] }
+];
+
+// ════════ 학교 유인물 Word List (33단어): 영영풀이 · 예문 ════════
+// w: 표제어 / form: 예문 속 실제 형태(빈칸 정답) / mean: 유인물 뜻(하나면 인정)
+// def: 영영풀이 / ex: 예문 / exko: 예문 해석
+const SCHOOL = [
+  { w: "all the time", form: "all the time", mean: ["내내", "줄곧"], def: "constantly or very frequently", ex: "He talked about games all the time.", exko: "그는 내내 게임에 대해 이야기했다." },
+  { w: "campaign", form: "campaign", mean: ["캠페인", "운동", "활동"], def: "a series of activities designed to produce a particular result", ex: "Our family joined a campaign to save water at home.", exko: "우리 가족은 집에서 물을 절약하는 캠페인에 참여했다." },
+  { w: "canal", form: "canal", mean: ["운하", "수로"], def: "a narrow waterway built by people for boats or to bring water to fields", ex: "We walked by the canal and saw some boats.", exko: "우리는 운하 옆을 걸으며 몇몇 배들을 봤다." },
+  { w: "do one's best", form: "do my best", mean: ["최선을 다하다"], def: "do all one can", ex: "I will do my best to win the race.", exko: "나는 경주에서 이기기 위해 최선을 다할 것이다." },
+  { w: "farm", form: "farm", mean: ["농장"], def: "a piece of land used for growing crops or raising animals", ex: "We visited a strawberry farm last weekend.", exko: "우리는 지난 주말에 딸기 농장에 방문했다." },
+  { w: "find out", form: "find out", mean: ["알게 되다", "알아내다"], def: "to become aware of (something)", ex: "I will find out how to get to the museum.", exko: "나는 박물관에 가는 방법을 알아볼 것이다." },
+  { w: "flea market", form: "flea market", mean: ["벼룩시장"], def: "a market in which old or used goods are sold", ex: "I sold my old bike at the flea market.", exko: "나는 벼룩시장에서 나의 오래된 자전거를 팔았다." },
+  { w: "flood", form: "flood", mean: ["침수시키다", "홍수"], def: "to cover an area with a lot of water", ex: "We stayed inside the house because of the flood.", exko: "우리는 홍수 때문에 집 안에서 지냈다." },
+  { w: "global", form: "global", mean: ["지구의", "세계적인"], def: "involving the entire world", ex: "We can help the global environment by planting trees.", exko: "우리는 나무를 심어서 지구 환경을 도울 수 있다." },
+  { w: "greenhouse gas", form: "greenhouse gases", mean: ["온실가스"], def: "a gas that contributes to the greenhouse effect by absorbing infrared radiation.", ex: "Too many greenhouse gases can change the climate.", exko: "너무 많은 온실가스는 날씨를 바꿀 수 있다." },
+  { w: "habit", form: "habit", mean: ["습관", "버릇"], def: "a usual way of behaving, something that a person does often in a regular and repeated way", ex: "Drinking water is a healthy habit.", exko: "물을 마시는 것은 건강한 습관이다." },
+  { w: "historic", form: "historic", mean: ["역사적인", "역사적으로 유명한"], def: "famous or important in history", ex: "The city has many historic places.", exko: "그 도시는 역사적인 장소가 많다." },
+  { w: "increase", form: "increase", mean: ["증가하다", "증가시키다"], def: "to become larger or greater in size, amount, number, etc.", ex: "The company will increase its sales next year.", exko: "그 회사는 내년의 판매량을 증가시킬 것이다." },
+  { w: "nearby", form: "nearby", mean: ["가까운", "가까이의"], def: "not far away, located at a short distance from someone or something", ex: "We went to a nearby restaurant for dinner.", exko: "우리는 저녁을 먹으러 가까운 식당에 갔다." },
+  { w: "part", form: "part", mean: ["역할", "부분"], def: "a role or function played by someone or something in a particular situation or event", ex: "She played an important part in the game.", exko: "그녀는 경기에서 중요한 역할을 했다." },
+  { w: "pass", form: "passed", mean: ["배출하다", "배설하다", "통과하다"], def: "to have (something) come out from your body", ex: "After a big meal, the pig passed gas.", exko: "많은 양의 식사 후에, 그 돼지는 가스를 배출했다." },
+  { w: "pencil case", form: "pencil case", mean: ["필통"], def: "a small container for pencils, pens, and other writing equipment.", ex: "I keep my pens in my pencil case.", exko: "나는 나의 펜을 필통에 넣어둔다." },
+  { w: "planet", form: "planet", mean: ["행성"], def: "a large, round object in space", ex: "Earth is the third planet from the Sun.", exko: "지구는 태양으로부터 세 번째 행성이다." },
+  { w: "plant", form: "planted", mean: ["심다", "식물"], def: "to put (a seed, flower, or plant) in the ground to grow", ex: "I planted flowers in the garden.", exko: "나는 정원에 꽃을 심었다." },
+  { w: "pollution", form: "pollution", mean: ["오염"], def: "the action or process of making land, water, air, etc., dirty and not safe or suitable to use", ex: "The fish are in danger because of water pollution.", exko: "물고기들이 수질 오염 때문에 위험에 처해 있다." },
+  { w: "recently", form: "recently", mean: ["최근에", "최근"], def: "during a period of time that has just passed, not long ago", ex: "He recently moved to a new house.", exko: "그는 최근에 새집으로 이사했다." },
+  { w: "recycle", form: "recycles", mean: ["재활용하다"], def: "to process and reuse materials; to use something again in a different purpose", ex: "This store recycles used clothes.", exko: "이 가게는 헌 옷을 재활용한다." },
+  { w: "reduce", form: "reduce", mean: ["줄이다", "낮추다"], def: "to make (something) smaller in size, amount, number, etc.", ex: "We should reduce the use of plastic.", exko: "우리는 플라스틱의 사용을 줄여야 한다." },
+  { w: "reusable", form: "reusable", mean: ["재사용할 수 있는", "재사용 가능한"], def: "able to be used again or more than once", ex: "Let's use reusable shopping bags.", exko: "재사용할 수 있는 쇼핑백을 사용하자." },
+  { w: "reuse", form: "reuse", mean: ["재사용하다"], def: "to use (something) again", ex: "I always reuse the other side of the paper.", exko: "나는 항상 종이의 다른 쪽 면을 재사용한다." },
+  { w: "rise", form: "rise", mean: ["오르다", "올라가다"], def: "to move upward", ex: "The water level can rise after a huge rain.", exko: "큰 비 이후에 수위가 올라갈 수 있다." },
+  { w: "scary", form: "scary", mean: ["무서운", "겁나는"], def: "causing fear", ex: "The dark forest looked scary at night.", exko: "그 어두운 숲은 밤에 무서워 보였다." },
+  { w: "situation", form: "situations", mean: ["상황"], def: "all the things that are happening at a particular time and place", ex: "She stayed calm in difficult situations.", exko: "그녀는 어려운 상황에서도 침착했다." },
+  { w: "slow down", form: "slowed down", mean: ["늦추다"], def: "to reduce the speed or pace of something or to become less fast or intense", ex: "The speaker slowed down his speech for the children.", exko: "그 연설자는 아이들을 위해 말의 속도를 늦추었다." },
+  { w: "terrible", form: "terrible", mean: ["매우 나쁜", "끔찍한"], def: "very unpleasant or serious or of low quality", ex: "The weather is terrible today.", exko: "오늘 날씨가 매우 나쁘다." },
+  { w: "tourist", form: "tourists", mean: ["관광객"], def: "a person who travels to a place for pleasure", ex: "Many tourists visit Las Vegas to see the shows.", exko: "많은 관광객들은 쇼를 보기 위해 라스베이거스에 방문한다." },
+  { w: "underwater", form: "underwater", mean: ["물속의", "수중의"], def: "below the surface of water", ex: "If the sea level rises, the island will be underwater.", exko: "해수면이 상승하면, 그 섬은 물에 잠길 것이다." },
+  { w: "waste", form: "waste", mean: ["쓰레기"], def: "things people throw away because they're not needed", ex: "The park was full of waste after the big party.", exko: "큰 파티 후 공원은 쓰레기로 가득했다." }
+];
+
+const TYPES = [
+  ["words", "교과서 WORDS", "2학년 동아(이병민) · 60문항", "품사 다중 선택 + 뜻 작성. part·save는 모든 뜻 필수, 그 외는 품사별 뜻 1개."],
+  ["defs", "영영풀이", "학교 유인물 · 33문항", "영영 풀이를 보고 영어 단어와 한글 뜻을 쓰세요. 품사는 없습니다."],
+  ["blanks", "예문 빈칸", "학교 유인물 · 33문항", "예문의 빈칸에 알맞은 단어를 쓰세요. ed·s 등 형태까지 정확해야 정답."]
+];
+const POS_ALL = ["명", "동", "형", "부"];
+let curType = "words";
+const store = {};   // type → { order, state: {idx → {...}}, graded: bool }
+
+function bank() { return curType === "words" ? WORDS : SCHOOL; }
+function S() {
+  if (!store[curType]) {
+    store[curType] = { order: bank().map((_, i) => i), state: {}, graded: false };
+    shuffleOrder(store[curType].order);
+  }
+  return store[curType];
+}
+function shuffleOrder(o) {
+  for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; }
+}
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function normKo(s) { return s.replace(/\([^)]*\)/g, "").replace(/[^가-힣a-zA-Z0-9]/g, ""); }
+function normEn(s) { return s.toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9]/g, ""); }
+
+function render() {
+  const t = TYPES.find(t => t[0] === curType);
+  document.getElementById("typeRow").innerHTML = TYPES.map(tt =>
+    '<button class="' + (curType === tt[0] ? "on" : "") + '" onclick="setType(\'' + tt[0] + '\')">' + tt[1] + "</button>").join("");
+  document.getElementById("subTitle").textContent = t[2];
+  document.getElementById("footNote").textContent = t[3] + " 자동 채점 후 \"정답 처리\"로 선생님이 직접 인정할 수 있어요.";
+
+  const s = S(), list = document.getElementById("list");
+  list.innerHTML = "";
+  s.order.forEach((idx, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.idx = idx;
+    card.innerHTML = curType === "words" ? cardWords(idx, i) : curType === "defs" ? cardDefs(idx, i) : cardBlanks(idx, i);
+    list.appendChild(card);
+  });
+  document.getElementById("scoreboard").classList.remove("show");
+  if (s.graded) applyGrades();
+  updateProgress();
+}
+
+function cardWords(idx, i) {
+  const w = WORDS[idx], st = S().state[idx] || {};
+  const chips = w.phrase ? '<span class="badge">숙어</span>' :
+    '<div class="poschips" role="group" aria-label="품사 선택">' +
+    POS_ALL.map(p => '<label>' + p + '<input type="checkbox" value="' + p + '"' + ((st.pos || []).includes(p) ? " checked" : "") + '></label>').join("") +
+    "</div>";
+  return '<div class="head"><span class="no">' + String(i + 1).padStart(2, "0") + '</span>' +
+    '<span class="word">' + esc(w.w) + "</span>" +
+    (w.all ? '<span class="note">모든 뜻 필수</span>' : "") +
+    '<span class="verdict"></span></div>' +
+    '<div class="row">' + chips +
+    '<input class="meaning" type="text" value="' + esc(st.mean || "") + '" placeholder="뜻을 입력하세요" autocomplete="off" spellcheck="false">' +
+    '</div><div class="result"></div>';
+}
+function cardDefs(idx, i) {
+  const w = SCHOOL[idx], st = S().state[idx] || {};
+  return '<div class="head"><span class="no">' + String(i + 1).padStart(2, "0") + '</span>' +
+    '<span class="def">' + esc(w.def) + '</span><span class="verdict"></span></div>' +
+    '<div class="row">' +
+    '<input class="wordin" type="text" value="' + esc(st.word || "") + '" placeholder="영어 단어" autocomplete="off" spellcheck="false">' +
+    '<input class="meaning" type="text" value="' + esc(st.mean || "") + '" placeholder="한글 뜻" autocomplete="off" spellcheck="false">' +
+    '</div><div class="result"></div>';
+}
+function cardBlanks(idx, i) {
+  const w = SCHOOL[idx], st = S().state[idx] || {};
+  const at = w.ex.indexOf(w.form);
+  const pre = w.ex.slice(0, at), post = w.ex.slice(at + w.form.length);
+  return '<div class="head"><span class="no">' + String(i + 1).padStart(2, "0") + '</span>' +
+    '<span class="exline">' + esc(pre) +
+    '<input class="blank" type="text" size="' + Math.max(6, w.form.length) + '" value="' + esc(st.word || "") + '" autocomplete="off" spellcheck="false">' +
+    esc(post) + '</span><span class="verdict"></span></div>' +
+    '<div class="exko">' + esc(w.exko) + '</div><div class="result"></div>';
+}
+
+document.addEventListener("input", e => {
+  const card = e.target.closest(".card"); if (!card) return;
+  const s = S(), idx = +card.dataset.idx;
+  const st = s.state[idx] = s.state[idx] || {};
+  if (e.target.classList.contains("meaning")) st.mean = e.target.value;
+  else if (e.target.classList.contains("wordin") || e.target.classList.contains("blank")) st.word = e.target.value;
+  updateProgress();
+});
+document.addEventListener("change", e => {
+  if (!e.target.matches(".poschips input")) return;
+  const card = e.target.closest(".card");
+  const s = S(), idx = +card.dataset.idx;
+  const st = s.state[idx] = s.state[idx] || {};
+  st.pos = [...card.querySelectorAll(".poschips input:checked")].map(i => i.value);
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter" || !e.target.matches(".meaning, .wordin, .blank")) return;
+  const all = [...document.querySelectorAll(".meaning, .wordin, .blank")];
+  const next = all[all.indexOf(e.target) + 1];
+  if (next) { next.focus(); next.scrollIntoView({ block: "center" }); }
+});
+
+function updateProgress() {
+  const s = S();
+  const done = s.order.filter(idx => {
+    const st = s.state[idx] || {};
+    if (curType === "words") return (st.mean || "").trim();
+    if (curType === "defs") return (st.word || "").trim() && (st.mean || "").trim();
+    return (st.word || "").trim();
+  }).length;
+  document.getElementById("progress").textContent = "작성 " + done + " / " + s.order.length;
+}
+
+function setType(t) { curType = t; render(); window.scrollTo({ top: 0 }); }
+function shuffleAll() {
+  const s = S();
+  shuffleOrder(s.order);
+  s.state = {}; s.graded = false;
+  render(); window.scrollTo({ top: 0 });
+}
+
+function gradeItem(idx) {
+  const s = S(), st = s.state[idx] || {};
+  const fails = [];
+  if (curType === "words") {
+    const w = WORDS[idx];
+    if (!w.phrase) {
+      const sel = (st.pos || []).slice().sort().join(",");
+      if (sel !== [...w.pos].sort().join(",")) fails.push("품사");
+    }
+    const ans = normKo(st.mean || "");
+    const meanOK = w.mean.every(block => {
+      const hit = block.groups.filter(g => g.some(alt => { const k = normKo(alt); return k && ans.includes(k); })).length;
+      return w.all ? hit === block.groups.length : hit >= 1;
+    });
+    if (!meanOK) fails.push("뜻");
+  } else if (curType === "defs") {
+    const w = SCHOOL[idx];
+    if (normEn(st.word || "") !== normEn(w.w)) fails.push("단어");
+    const ans = normKo(st.mean || "");
+    if (!w.mean.some(alt => ans.includes(normKo(alt)))) fails.push("뜻");
+  } else {
+    const w = SCHOOL[idx];
+    if (normEn(st.word || "") !== normEn(w.form)) fails.push("빈칸");
+  }
+  return fails;
+}
+
+function answerHTML(idx) {
+  if (curType === "words") {
+    const w = WORDS[idx];
+    return w.mean.map(b =>
+      (b.pos ? '<span class="pl">[' + b.pos + "]</span>" : "") +
+      "<b>" + b.groups.map(g => g[0]).join("; ") + "</b>").join("　");
+  }
+  const w = SCHOOL[idx];
+  if (curType === "defs")
+    return "<b>" + esc(w.w) + "</b> — " + esc(w.mean.join(", ")) +
+      '<br><span class="exq">' + esc(w.ex) + "</span> " + esc(w.exko);
+  return "<b>" + esc(w.form) + "</b>" + (w.form !== w.w ? " (" + esc(w.w) + ")" : "") + " — " + esc(w.mean.join(", "));
+}
+
+function gradeAll() {
+  const s = S();
+  s.graded = true;
+  s.order.forEach(idx => { (s.state[idx] = s.state[idx] || {}).fails = gradeItem(idx); });
+  applyGrades();
+  document.getElementById("scoreboard").classList.add("show");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function applyGrades() {
+  const s = S();
+  let auto = 0, over = 0, wrong = 0;
+  document.querySelectorAll(".card").forEach(card => {
+    const idx = +card.dataset.idx;
+    const st = s.state[idx];
+    if (!st || !st.fails) return;
+    card.classList.add("graded");
+    card.classList.remove("correct", "wrong", "override");
+    const v = card.querySelector(".verdict"), res = card.querySelector(".result");
+    if (!st.fails.length) {
+      auto++;
+      card.classList.add("correct"); v.textContent = "정답"; v.className = "verdict g";
+      res.innerHTML = '<div class="ans">' + answerHTML(idx) + "</div>";
+    } else {
+      if (st.over) { over++; card.classList.add("override"); v.textContent = "선생님 인정"; v.className = "verdict o"; }
+      else { wrong++; card.classList.add("wrong"); v.textContent = "오답"; v.className = "verdict b"; }
+      res.innerHTML =
+        st.fails.map(f => '<span class="fail">✗ ' + f + "</span>").join("") +
+        '<div class="ans">정답: ' + answerHTML(idx) + "</div>" +
+        '<button class="overbtn' + (st.over ? " on" : "") + '" onclick="toggleOver(this)">' +
+        (st.over ? "✓ 선생님 인정됨 (취소)" : "정답 처리") + "</button>";
+    }
+  });
+  document.getElementById("scoreN").textContent = auto + over;
+  document.getElementById("scoreT").textContent = " / " + s.order.length;
+  document.getElementById("cAuto").textContent = auto;
+  document.getElementById("cOver").textContent = over;
+  document.getElementById("cWrong").textContent = wrong;
+  document.getElementById("scoreboard").classList.add("show");
+}
+
+function toggleOver(btn) {
+  const card = btn.closest(".card");
+  const st = S().state[+card.dataset.idx];
+  st.over = !st.over;
+  applyGrades();
+}
+
+render();
+</script>
+</body>
+</html>
