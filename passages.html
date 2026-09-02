@@ -29,6 +29,16 @@
     font-size: 15px; line-height: 1.6;
     padding-bottom: 80px;
   }
+  .sitenav {
+    display: flex; gap: 4px; justify-content: center; align-items: center;
+    background: var(--ink); padding: 8px 16px;
+  }
+  .sitenav a {
+    color: rgba(255, 255, 255, .75); text-decoration: none;
+    font-size: 13px; font-weight: 500; padding: 4px 14px; border-radius: 999px;
+  }
+  .sitenav a:hover { color: #fff; }
+  .sitenav a.on { background: var(--accent); color: #fff; font-weight: 700; }
   header { text-align: center; padding: 44px 16px 8px; }
   .eyebrow {
     font-size: 12px; font-weight: 700; letter-spacing: 6px;
@@ -134,6 +144,12 @@
 </style>
 </head>
 <body>
+
+<nav class="sitenav">
+  <a href="index.html">🏠 홈</a>
+  <a href="words.html">📝 단어 시험</a>
+  <a href="passages.html" class="on">✍️ 본문 시험</a>
+</nav>
 
 <header>
   <div class="eyebrow">2학기 중간고사 · 5과 &amp; 6과</div>
