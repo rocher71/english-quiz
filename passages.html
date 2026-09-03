@@ -506,9 +506,51 @@ const DATA = {
         ["W", "Every student must be quiet in the library.", "모든 학생은 도서관에서 조용히 해야 합니다."],
         ["W", "Let's follow this rule.", "이 규칙을 따르도록 합시다."]
       ]}
+    ],
+    vocab: [
+      { t: "Word List 예문", s: "학교 유인물 · 32문장", items: [
+        ["", "My parents always give me good advice.", "나의 부모님은 나에게 항상 좋은 조언을 해 주신다."],
+        ["", "I read an interesting article about space travel.", "나는 우주 여행에 관한 흥미로운 기사를 읽었다."],
+        ["", "She is the captain of the hockey team at school.", "그녀는 학교에서 하키 팀의 주장이다."],
+        ["", "The cheer of the fans filled the stadium.", "팬들의 응원 소리가 경기장을 가득 채웠다."],
+        ["", "She is in great condition because she exercises every day.", "그녀는 매일 운동을 하기 때문에 몸 상태가 아주 좋다."],
+        ["", "The crowd clapped after the show.", "쇼가 끝난 후 관중들은 박수를 쳤다."],
+        ["", "Each student should be on time.", "각 학생은 제시간에 와야 한다."],
+        ["", "She studied hard for her final exam.", "그녀는 기말 시험을 위해 열심히 공부했다."],
+        ["", "She flipped the pancake over in the pan.", "그녀는 팬에서 팬케이크를 뒤집었다."],
+        ["", "The flowers in the garden will grow soon.", "정원의 꽃들이 곧 자랄 것이다."],
+        ["", "I stretched my legs during halftime at the basketball game.", "나는 농구 경기의 하프타임 동안 다리를 풀었다."],
+        ["", "I want to know more about the new healthcare program.", "나는 새로운 건강 관리 프로그램에 관해 더 알고 싶다."],
+        ["", "I have visited London lately.", "나는 최근에 런던에 방문한 적이 있다."],
+        ["", "Listening to music can lower your stress.", "음악을 듣는 것은 스트레스를 낮출 수 있다."],
+        ["", "He can manage his time very well.", "그는 시간을 매우 잘 관리할 수 있다."],
+        ["", "After the art class, my hands were messy with paint.", "미술 수업 후 내 손은 페인트로 지저분했다."],
+        ["", "I write in my money diary when I spend money.", "나는 돈을 쓸 때 용돈기입장에 적는다."],
+        ["", "The band will perform at the school festival.", "그 밴드는 학교 축제에서 공연할 것이다."],
+        ["", "The principal of our school welcomed the new students.", "우리 학교의 교장 선생님은 신입생들을 환영했다."],
+        ["", "I felt proud when I finished the race.", "나는 경주를 완주했을 때 자랑스러웠다."],
+        ["", "There are two minutes left in the third quarter.", "세 번째 쿼터가 2분 남았다."],
+        ["", "Her recent movie was very popular.", "그녀의 최근 영화는 매우 인기 있었다."],
+        ["", "We are waiting for the result of the test.", "우리는 시험 결과를 기다리는 중이다."],
+        ["", "I will save money to buy a new bike.", "나는 새 자전거를 사기 위해 저축할 것이다."],
+        ["", "The school nurse gave me medicine for my headache.", "보건 선생님은 내게 두통약을 주셨다."],
+        ["", "The fans screamed when their team won the game.", "팬들은 그들의 팀이 경기를 이기자 소리를 쳤다."],
+        ["", "I spent all my money on clothes.", "나는 모든 돈을 옷에 소비했다."],
+        ["", "Somebody spread the news yesterday.", "누군가 어제 그 소식을 퍼뜨렸다."],
+        ["", "I stayed up late last night to finish the book.", "나는 책을 끝내기 위해 어젯밤 늦게까지 깨어 있었다."],
+        ["", "I answered a survey about my shopping habits.", "나는 내 쇼핑 습관에 관한 설문에 응답했다."],
+        ["", "Her room is always tidy.", "그녀의 방은 항상 깔끔하다."],
+        ["", "He trusts his teammates.", "그는 그의 팀원들을 믿는다."]
+      ]}
     ]
   }
 };
+
+// 5·6 통합: 두 과의 섹션을 이어붙인 가상 레슨
+DATA["56"] = {};
+["reading", "dialogues", "extra", "vocab"].forEach(p => {
+  DATA["56"][p] = DATA["5"][p].concat(DATA["6"][p]);
+});
 
 const PARTS = [["reading", "Reading"], ["dialogues", "Dialogues"], ["extra", "Extra Reading"], ["vocab", "단어 예문"]];
 const MODES = [["write", "뜻 보고 영작"], ["blank", "빈칸 채우기"]];
@@ -548,8 +590,8 @@ function ensureBlanks() {
 }
 
 function render() {
-  document.getElementById("lessonTabs").innerHTML = ["5", "6"].map(l =>
-    '<button class="' + (cur.lesson === l ? "on" : "") + '" onclick="setView(\'' + l + '\',null,null)">Lesson ' + l + "</button>").join("");
+  document.getElementById("lessonTabs").innerHTML = [["5", "Lesson 5"], ["6", "Lesson 6"], ["56", "5·6 통합"]].map(l =>
+    '<button class="' + (cur.lesson === l[0] ? "on" : "") + '" onclick="setView(\'' + l[0] + '\',null,null)">' + l[1] + "</button>").join("");
   document.getElementById("partRow").innerHTML = PARTS.filter(p => DATA[cur.lesson][p[0]]).map(p =>
     '<button class="' + (cur.part === p[0] ? "on" : "") + '" onclick="setView(null,\'' + p[0] + '\',null)">' + p[1] + "</button>").join("");
   document.getElementById("modeSeg").innerHTML = MODES.map(m =>

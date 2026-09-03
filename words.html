@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>5과 단어 시험장</title>
+<title>단어 시험장</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@400;500;700&display=swap">
 <style>
   :root {
@@ -66,9 +66,11 @@
   button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
 
   /* 시험 종류 탭 */
-  #typeRow { max-width: 760px; margin: 14px auto 0; padding: 0 16px; display: flex; gap: 8px; flex-wrap: wrap; }
-  #typeRow button { font-size: 13px; border-radius: 999px; padding: 6px 16px; color: var(--muted); }
+  #typeRow, #lessonRow { max-width: 760px; margin: 14px auto 0; padding: 0 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  #lessonRow { margin-top: 8px; }
+  #typeRow button, #lessonRow button { font-size: 13px; border-radius: 999px; padding: 6px 16px; color: var(--muted); }
   #typeRow button.on { background: var(--ink); border-color: var(--ink); color: var(--surface); font-weight: 700; }
+  #lessonRow button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
 
   /* ── 점수판 ── */
   #scoreboard {
@@ -164,7 +166,7 @@
 
 <div id="topbar">
   <div class="inner">
-    <h1>5과 단어 시험장<small id="subTitle"></small></h1>
+    <h1>단어 시험장<small id="subTitle"></small></h1>
     <span id="progress"></span>
     <button onclick="shuffleAll()">🔀 셔플</button>
     <button class="primary" onclick="gradeAll()">채점하기</button>
@@ -172,6 +174,7 @@
 </div>
 
 <div id="typeRow"></div>
+<div id="lessonRow"></div>
 
 <div id="scoreboard">
   <div class="big"><span id="scoreN">0</span><span id="scoreT"> / 0</span></div>
@@ -252,7 +255,7 @@ const WORDS = [
 // ════════ 학교 유인물 Word List (33단어): 영영풀이 · 예문 ════════
 // w: 표제어 / form: 예문 속 실제 형태(빈칸 정답) / mean: 유인물 뜻(하나면 인정)
 // def: 영영풀이 / ex: 예문 / exko: 예문 해석
-const SCHOOL = [
+const SCHOOL5 = [
   { w: "all the time", form: "all the time", mean: ["내내", "줄곧"], def: "constantly or very frequently", ex: "He talked about games all the time.", exko: "그는 내내 게임에 대해 이야기했다." },
   { w: "campaign", form: "campaign", mean: ["캠페인", "운동", "활동"], def: "a series of activities designed to produce a particular result", ex: "Our family joined a campaign to save water at home.", exko: "우리 가족은 집에서 물을 절약하는 캠페인에 참여했다." },
   { w: "canal", form: "canal", mean: ["운하", "수로"], def: "a narrow waterway built by people for boats or to bring water to fields", ex: "We walked by the canal and saw some boats.", exko: "우리는 운하 옆을 걸으며 몇몇 배들을 봤다." },
@@ -288,22 +291,64 @@ const SCHOOL = [
   { w: "waste", form: "waste", mean: ["쓰레기"], def: "things people throw away because they're not needed", ex: "The park was full of waste after the big party.", exko: "큰 파티 후 공원은 쓰레기로 가득했다." }
 ];
 
-const TYPES = [
-  ["words", "교과서 WORDS", "2학년 동아(이병민) · 60문항", "품사 다중 선택 + 뜻 작성. part·save는 모든 뜻 필수, 그 외는 품사별 뜻 1개."],
-  ["defs", "영영풀이", "학교 유인물 · 33문항", "영영 풀이를 보고 영어 단어와 한글 뜻을 쓰세요. 품사는 없습니다."],
-  ["blanks", "예문 빈칸", "학교 유인물 · 33문항", "예문의 빈칸에 알맞은 단어를 쓰세요. ed·s 등 형태까지 정확해야 정답."]
+// 6과 학교 유인물 Word List (32단어)
+const SCHOOL6 = [
+  { w: "advice", form: "advice", mean: ["조언", "충고"], def: "an opinion or suggestion about what someone should do", ex: "My parents always give me good advice.", exko: "나의 부모님은 나에게 항상 좋은 조언을 해 주신다." },
+  { w: "article", form: "article", mean: ["글", "기사"], def: "a piece of writing about a particular subject that is included in a magazine, newspaper, etc.", ex: "I read an interesting article about space travel.", exko: "나는 우주 여행에 관한 흥미로운 기사를 읽었다." },
+  { w: "captain", form: "captain", mean: ["주장"], def: "an athlete who is chosen to be the leader of a team", ex: "She is the captain of the hockey team at school.", exko: "그녀는 학교에서 하키 팀의 주장이다." },
+  { w: "cheer", form: "cheer", mean: ["응원", "환호", "응원하다", "환호하다"], def: "a shout of praise or encouragement", ex: "The cheer of the fans filled the stadium.", exko: "팬들의 응원 소리가 경기장을 가득 채웠다." },
+  { w: "condition", form: "condition", mean: ["상태"], def: "the state in which something exists; the physical state of something", ex: "She is in great condition because she exercises every day.", exko: "그녀는 매일 운동을 하기 때문에 몸 상태가 아주 좋다." },
+  { w: "crowd", form: "crowd", mean: ["관중", "군중", "무리"], def: "a large group of people who are together in one place", ex: "The crowd clapped after the show.", exko: "쇼가 끝난 후 관중들은 박수를 쳤다." },
+  { w: "each", form: "Each", mean: ["각각의", "각자의"], def: "every one of two or more people or things considered separately", ex: "Each student should be on time.", exko: "각 학생은 제시간에 와야 한다." },
+  { w: "exam", form: "exam", mean: ["시험"], def: "a test to show a person's progress, knowledge, or ability", ex: "She studied hard for her final exam.", exko: "그녀는 기말 시험을 위해 열심히 공부했다." },
+  { w: "flip", form: "flipped", mean: ["뒤집다"], def: "to turn (something) over by throwing it up in the air with a quick movement", ex: "She flipped the pancake over in the pan.", exko: "그녀는 팬에서 팬케이크를 뒤집었다." },
+  { w: "grow", form: "grow", mean: ["자라다", "성장하다", "재배하다"], def: "to become larger; to increase in size, amount, etc.", ex: "The flowers in the garden will grow soon.", exko: "정원의 꽃들이 곧 자랄 것이다." },
+  { w: "halftime", form: "halftime", mean: ["중간 휴식", "하프타임"], def: "the break between the two halves in sports like football and basketball", ex: "I stretched my legs during halftime at the basketball game.", exko: "나는 농구 경기의 하프타임 동안 다리를 풀었다." },
+  { w: "healthcare", form: "healthcare", mean: ["건강 관리"], def: "services that help people stay healthy or get better when sick", ex: "I want to know more about the new healthcare program.", exko: "나는 새로운 건강 관리 프로그램에 관해 더 알고 싶다." },
+  { w: "lately", form: "lately", mean: ["최근에", "최근"], def: "in the recent past", ex: "I have visited London lately.", exko: "나는 최근에 런던에 방문한 적이 있다." },
+  { w: "lower", form: "lower", mean: ["낮추다"], def: "to move something down or make it less", ex: "Listening to music can lower your stress.", exko: "음악을 듣는 것은 스트레스를 낮출 수 있다." },
+  { w: "manage", form: "manage", mean: ["관리하다", "다루다"], def: "to have control of something, such as a business, department, sports team, etc.", ex: "He can manage his time very well.", exko: "그는 시간을 매우 잘 관리할 수 있다." },
+  { w: "messy", form: "messy", mean: ["지저분한"], def: "not clean or tidy", ex: "After the art class, my hands were messy with paint.", exko: "미술 수업 후 내 손은 페인트로 지저분했다." },
+  { w: "money diary", form: "money diary", mean: ["용돈기입장", "용돈 기입장"], def: "a record or journal for writing down and tracking income, expenses, and spending habits", ex: "I write in my money diary when I spend money.", exko: "나는 돈을 쓸 때 용돈기입장에 적는다." },
+  { w: "perform", form: "perform", mean: ["공연하다"], def: "to entertain an audience by singing, acting, etc.", ex: "The band will perform at the school festival.", exko: "그 밴드는 학교 축제에서 공연할 것이다." },
+  { w: "principal", form: "principal", mean: ["교장"], def: "the person in charge of a public school", ex: "The principal of our school welcomed the new students.", exko: "우리 학교의 교장 선생님은 신입생들을 환영했다." },
+  { w: "proud", form: "proud", mean: ["자랑스러운"], def: "feeling really happy because of something you did, something you own, or someone close to you", ex: "I felt proud when I finished the race.", exko: "나는 경주를 완주했을 때 자랑스러웠다." },
+  { w: "quarter", form: "quarter", mean: ["쿼터", "4분의 1"], def: "one of four equal parts of a game, like in basketball or American football", ex: "There are two minutes left in the third quarter.", exko: "세 번째 쿼터가 2분 남았다." },
+  { w: "recent", form: "recent", mean: ["최근의"], def: "happening or beginning not long ago", ex: "Her recent movie was very popular.", exko: "그녀의 최근 영화는 매우 인기 있었다." },
+  { w: "result", form: "result", mean: ["결과"], def: "a thing that is caused or produced by something else", ex: "We are waiting for the result of the test.", exko: "우리는 시험 결과를 기다리는 중이다." },
+  { w: "save", form: "save", mean: ["모으다", "저축하다", "구하다"], def: "to keep money instead of spending it", ex: "I will save money to buy a new bike.", exko: "나는 새 자전거를 사기 위해 저축할 것이다." },
+  { w: "school nurse", form: "school nurse", mean: ["보건 선생님", "보건선생님", "보건교사"], def: "a healthcare professional who works at a school", ex: "The school nurse gave me medicine for my headache.", exko: "보건 선생님은 내게 두통약을 주셨다." },
+  { w: "scream", form: "screamed", mean: ["소리치다", "소리 치다"], def: "to cry or say (something) in a loud and high voice because you are excited, afraid, etc.", ex: "The fans screamed when their team won the game.", exko: "팬들은 그들의 팀이 경기를 이기자 소리를 쳤다." },
+  { w: "spend", form: "spent", mean: ["소비하다", "쓰다"], def: "to use (money) to pay for something", ex: "I spent all my money on clothes.", exko: "나는 모든 돈을 옷에 소비했다." },
+  { w: "spread", form: "spread", mean: ["퍼뜨리다", "퍼트리다"], def: "to become known by many people", ex: "Somebody spread the news yesterday.", exko: "누군가 어제 그 소식을 퍼뜨렸다." },
+  { w: "stay up", form: "stayed up", mean: ["안 자다", "깨어 있다", "깨어있다"], def: "to continue to be awake past the time when you usually go to bed", ex: "I stayed up late last night to finish the book.", exko: "나는 책을 끝내기 위해 어젯밤 늦게까지 깨어 있었다." },
+  { w: "survey", form: "survey", mean: ["설문 조사", "설문조사"], def: "a list of questions to learn what people think or feel about something", ex: "I answered a survey about my shopping habits.", exko: "나는 내 쇼핑 습관에 관한 설문에 응답했다." },
+  { w: "tidy", form: "tidy", mean: ["깔끔한", "잘 정돈된", "정돈된"], def: "clean and organized, not messy", ex: "Her room is always tidy.", exko: "그녀의 방은 항상 깔끔하다." },
+  { w: "trust", form: "trusts", mean: ["믿다", "신뢰하다"], def: "to believe that someone or something is reliable, good, honest, etc", ex: "He trusts his teammates.", exko: "그는 그의 팀원들을 믿는다." }
 ];
+
+const TYPES = [
+  ["words", "교과서 WORDS", "5과 · 2학년 동아(이병민)", "품사 다중 선택 + 뜻 작성. part·save는 모든 뜻 필수, 그 외는 품사별 뜻 1개."],
+  ["defs", "영영풀이", "학교 유인물", "영영 풀이를 보고 영어 단어와 한글 뜻을 쓰세요. 품사는 없습니다."],
+  ["blanks", "예문 빈칸", "학교 유인물", "예문의 빈칸에 알맞은 단어를 쓰세요. ed·s 등 형태까지 정확해야 정답."]
+];
+const LESSONS = [["5", "5과"], ["6", "6과"], ["56", "5·6 통합"]];
 const POS_ALL = ["명", "동", "형", "부"];
 let curType = "words";
-const store = {};   // type → { order, state: {idx → {...}}, graded: bool }
+let curLesson = "5";
+const store = {};   // type|lesson → { order, state: {idx → {...}}, graded: bool }
 
-function bank() { return curType === "words" ? WORDS : SCHOOL; }
+function bank() {
+  if (curType === "words") return WORDS;
+  return curLesson === "6" ? SCHOOL6 : curLesson === "56" ? SCHOOL5.concat(SCHOOL6) : SCHOOL5;
+}
+function skey() { return curType + "|" + (curType === "words" ? "" : curLesson); }
 function S() {
-  if (!store[curType]) {
-    store[curType] = { order: bank().map((_, i) => i), state: {}, graded: false };
-    shuffleOrder(store[curType].order);
+  if (!store[skey()]) {
+    store[skey()] = { order: bank().map((_, i) => i), state: {}, graded: false };
+    shuffleOrder(store[skey()].order);
   }
-  return store[curType];
+  return store[skey()];
 }
 function shuffleOrder(o) {
   for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; }
@@ -316,7 +361,9 @@ function render() {
   const t = TYPES.find(t => t[0] === curType);
   document.getElementById("typeRow").innerHTML = TYPES.map(tt =>
     '<button class="' + (curType === tt[0] ? "on" : "") + '" onclick="setType(\'' + tt[0] + '\')">' + tt[1] + "</button>").join("");
-  document.getElementById("subTitle").textContent = t[2];
+  document.getElementById("lessonRow").innerHTML = curType === "words" ? "" : LESSONS.map(l =>
+    '<button class="' + (curLesson === l[0] ? "on" : "") + '" onclick="setLesson(\'' + l[0] + '\')">' + l[1] + "</button>").join("");
+  document.getElementById("subTitle").textContent = t[2] + " · " + bank().length + "문항";
   document.getElementById("footNote").textContent = t[3] + " 자동 채점 후 \"정답 처리\"로 선생님이 직접 인정할 수 있어요.";
 
   const s = S(), list = document.getElementById("list");
@@ -334,7 +381,7 @@ function render() {
 }
 
 function cardWords(idx, i) {
-  const w = WORDS[idx], st = S().state[idx] || {};
+  const w = bank()[idx], st = S().state[idx] || {};
   const chips = w.phrase ? '<span class="badge">숙어</span>' :
     '<div class="poschips" role="group" aria-label="품사 선택">' +
     POS_ALL.map(p => '<label>' + p + '<input type="checkbox" value="' + p + '"' + ((st.pos || []).includes(p) ? " checked" : "") + '></label>').join("") +
@@ -348,7 +395,7 @@ function cardWords(idx, i) {
     '</div><div class="result"></div>';
 }
 function cardDefs(idx, i) {
-  const w = SCHOOL[idx], st = S().state[idx] || {};
+  const w = bank()[idx], st = S().state[idx] || {};
   return '<div class="head"><span class="no">' + String(i + 1).padStart(2, "0") + '</span>' +
     '<span class="def">' + esc(w.def) + '</span><span class="verdict"></span></div>' +
     '<div class="row">' +
@@ -357,7 +404,7 @@ function cardDefs(idx, i) {
     '</div><div class="result"></div>';
 }
 function cardBlanks(idx, i) {
-  const w = SCHOOL[idx], st = S().state[idx] || {};
+  const w = bank()[idx], st = S().state[idx] || {};
   const at = w.ex.indexOf(w.form);
   const pre = w.ex.slice(0, at), post = w.ex.slice(at + w.form.length);
   return '<div class="head"><span class="no">' + String(i + 1).padStart(2, "0") + '</span>' +
@@ -401,6 +448,7 @@ function updateProgress() {
 }
 
 function setType(t) { curType = t; render(); window.scrollTo({ top: 0 }); }
+function setLesson(l) { curLesson = l; render(); window.scrollTo({ top: 0 }); }
 function shuffleAll() {
   const s = S();
   shuffleOrder(s.order);
@@ -412,7 +460,7 @@ function gradeItem(idx) {
   const s = S(), st = s.state[idx] || {};
   const fails = [];
   if (curType === "words") {
-    const w = WORDS[idx];
+    const w = bank()[idx];
     if (!w.phrase) {
       const sel = (st.pos || []).slice().sort().join(",");
       if (sel !== [...w.pos].sort().join(",")) fails.push("품사");
@@ -424,12 +472,12 @@ function gradeItem(idx) {
     });
     if (!meanOK) fails.push("뜻");
   } else if (curType === "defs") {
-    const w = SCHOOL[idx];
+    const w = bank()[idx];
     if (normEn(st.word || "") !== normEn(w.w)) fails.push("단어");
     const ans = normKo(st.mean || "");
     if (!w.mean.some(alt => ans.includes(normKo(alt)))) fails.push("뜻");
   } else {
-    const w = SCHOOL[idx];
+    const w = bank()[idx];
     if (normEn(st.word || "") !== normEn(w.form)) fails.push("빈칸");
   }
   return fails;
@@ -437,12 +485,12 @@ function gradeItem(idx) {
 
 function answerHTML(idx) {
   if (curType === "words") {
-    const w = WORDS[idx];
+    const w = bank()[idx];
     return w.mean.map(b =>
       (b.pos ? '<span class="pl">[' + b.pos + "]</span>" : "") +
       "<b>" + b.groups.map(g => g[0]).join("; ") + "</b>").join("　");
   }
-  const w = SCHOOL[idx];
+  const w = bank()[idx];
   if (curType === "defs")
     return "<b>" + esc(w.w) + "</b> — " + esc(w.mean.join(", ")) +
       '<br><span class="exq">' + esc(w.ex) + "</span> " + esc(w.exko);
