@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>핵심 정리</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f2ede3; --card: #fbf8f1; --ink: #35322c; --muted: #8a8272;
+    --line: #ddd5c4; --accent: #a8402f; --accent-soft: #f4e3df;
+    --green: #2f6f4f; --green-soft: #e8f1ec; --green-ink: #1f4d36;
+    --ok: #2f6f4f; --no: #c0392b; --cond: #b7791f;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif; font-size: 15px; line-height: 1.6; padding-bottom: 80px; }
+  .sitenav { display: flex; gap: 4px; justify-content: center; align-items: center; background: var(--ink); padding: 8px 16px; }
+  .sitenav a { color: rgba(255,255,255,.75); text-decoration: none; font-size: 13px; font-weight: 500; padding: 4px 14px; border-radius: 999px; }
+  .sitenav a:hover { color: #fff; }
+  .sitenav a.on { background: var(--accent); color: #fff; font-weight: 700; }
+  header { text-align: center; padding: 44px 16px 8px; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 6px; color: var(--accent); }
+  h1 { font-family: "Gowun Batang", serif; font-weight: 700; font-size: clamp(28px, 5vw, 42px); letter-spacing: 2px; margin-top: 10px; }
+  .lede { color: var(--muted); font-size: 14px; margin-top: 10px; }
+
+  #toc { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 24px 16px 0; }
+  #toc a { font-size: 13px; padding: 6px 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--muted); text-decoration: none; }
+  #toc a.on { background: var(--ink); border-color: var(--ink); color: var(--card); font-weight: 700; }
+
+  .paper { max-width: 900px; margin: 20px auto 0; background: var(--card); border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 2px 10px rgba(53,50,44,.07); padding: 30px 34px 40px; }
+  @media (max-width: 940px) { .paper { margin: 20px 12px 0; padding: 20px 16px 32px; } }
+  h2 { font-family: "Gowun Batang", serif; font-size: 24px; font-weight: 700; border-bottom: 2px solid var(--ink); padding-bottom: 8px; }
+  h2 small { font-family: "Noto Sans KR", sans-serif; font-size: 13px; color: var(--muted); font-weight: 500; margin-left: 10px; }
+  h3 { font-family: "Gowun Batang", serif; font-size: 18px; margin: 30px 0 10px; }
+  h3 small { font-family: "Noto Sans KR", sans-serif; font-size: 12.5px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+  .legend { font-size: 12.5px; color: var(--muted); margin: 14px 0 10px; }
+  .legend b { color: var(--green-ink); }
+
+  .tblwrap { overflow-x: auto; }
+  table.agree { border-collapse: collapse; font-size: 14px; width: 100%; min-width: 720px; background: #fff; }
+  table.agree th, table.agree td { border: 1px solid #b8b0a0; padding: 7px 10px; text-align: center; }
+  table.agree th { background: var(--green); color: #fff; font-weight: 700; }
+  table.agree td.expr { text-align: left; }
+  table.agree td.v { font-weight: 700; }
+  table.agree tr.tb td { font-weight: 900; background: var(--green-soft); }
+  table.agree tr.tb td.expr { color: var(--green-ink); }
+  .o { color: var(--ok); } .x { color: var(--no); } .t { color: var(--cond); }
+  table.agree small { display: block; font-size: 11px; color: #666; font-weight: 400; line-height: 1.25; margin-top: 2px; }
+  .notes { font-size: 13.5px; margin-top: 14px; line-height: 1.75; }
+  .notes b { color: var(--green-ink); }
+
+  .sent { padding: 12px 0; border-bottom: 1px dashed var(--line); display: grid; grid-template-columns: 150px 1fr; gap: 6px 14px; align-items: start; }
+  .sent .src { font-size: 11.5px; color: var(--accent); font-weight: 700; padding-top: 4px; line-height: 1.4; }
+  .sent .src span { display: block; color: var(--muted); font-weight: 500; }
+  .sent .en { font-family: "Lora", Georgia, serif; font-size: 16px; }
+  .sent .en b { font-weight: 700; color: var(--green-ink); background: var(--green-soft); padding: 0 3px; border-radius: 3px; }
+  .sent .ko { grid-column: 2; font-size: 13.5px; color: var(--muted); }
+  .sent .why { grid-column: 2; font-size: 12px; color: var(--cond); font-weight: 700; }
+  @media (max-width: 600px) { .sent { grid-template-columns: 1fr; } .sent .ko, .sent .why { grid-column: 1; } }
+  .star { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<nav class="sitenav">
+  <a href="index.html">🏠 홈</a>
+  <a href="words.html">📝 단어 시험</a>
+  <a href="passages.html">✍️ 본문 시험</a>
+  <a href="notes.html" class="on">📌 핵심 정리</a>
+</nav>
+
+<header>
+  <div class="eyebrow">2학기 중간고사 · 5과 &amp; 6과</div>
+  <h1>핵심 정리</h1>
+  <div class="lede">문법 포인트 표 + 교과서·유인물 문장에서 실제로 쓰인 예</div>
+</header>
+
+<div id="toc"><a href="#agree" class="on">6과 · 수 일치 표</a></div>
+
+<section class="paper" id="agree">
+  <h2>6과 - 수 일치 표<small>each / every / all / most·some·percent·분수 / half / both A and B</small></h2>
+  <div class="legend">○ 가능 &nbsp; △ 조건부 &nbsp; ✕ 불가 &nbsp;·&nbsp; <b>굵은 초록 행 = 교과서 (1)~(4) 수록 내용</b></div>
+  <div class="tblwrap">
+  <table class="agree">
+  <thead><tr><th>표현</th><th>of</th><th>단수 가산명사</th><th>복수 가산명사</th><th>셀 수 없는 명사</th><th>동사</th></tr></thead>
+  <tbody>
+  <tr class="tb"><td class="expr">every</td><td><span class="x">✕</span></td><td><span class="o">○</span></td><td></td><td></td><td class="v">단수</td></tr>
+  <tr><td class="expr">every</td><td><span class="x">✕</span></td><td></td><td><span class="x">✕</span><small>*every two weeks만 가능</small></td><td></td><td class="v">단수</td></tr>
+  <tr><td class="expr">every</td><td><span class="x">✕</span></td><td></td><td></td><td><span class="x">✕</span></td><td class="v">–</td></tr>
+  <tr class="tb"><td class="expr">each</td><td><span class="x">✕</span></td><td><span class="o">○</span></td><td></td><td></td><td class="v">단수</td></tr>
+  <tr class="tb"><td class="expr">each of</td><td><span class="o">○</span></td><td></td><td><span class="o">○</span></td><td></td><td class="v">단수</td></tr>
+  <tr class="tb"><td class="expr">all</td><td><span class="t">△</span></td><td></td><td><span class="o">○</span></td><td></td><td class="v">복수</td></tr>
+  <tr class="tb"><td class="expr">all</td><td><span class="t">△</span></td><td></td><td></td><td><span class="o">○</span></td><td class="v">단수</td></tr>
+  <tr><td class="expr">all</td><td><span class="x">✕</span></td><td><span class="t">△</span><small>*all day처럼 "온/전체" 뜻만 (all kid ✗)</small></td><td></td><td></td><td class="v">단수</td></tr>
+  <tr><td class="expr">all of + 대명사</td><td><span class="o">○</span></td><td></td><td></td><td></td><td class="v">대명사 따라</td></tr>
+  <tr class="tb"><td class="expr">most / some / percent / 분수</td><td><span class="t">△</span></td><td></td><td><span class="o">○</span></td><td></td><td class="v">복수</td></tr>
+  <tr class="tb"><td class="expr">most / some / percent / 분수</td><td><span class="t">△</span></td><td></td><td></td><td><span class="o">○</span></td><td class="v">단수</td></tr>
+  <tr class="tb"><td class="expr">most / some / percent / 분수</td><td><span class="o">○</span></td><td><span class="t">△</span><small>*덩어리(book, cake)만</small></td><td></td><td></td><td class="v">단수</td></tr>
+  <tr><td class="expr">most of + 대명사</td><td><span class="o">○</span></td><td></td><td></td><td></td><td class="v">대명사 따라</td></tr>
+  <tr class="tb"><td class="expr">half</td><td><span class="t">△</span></td><td></td><td><span class="o">○</span></td><td></td><td class="v">복수</td></tr>
+  <tr class="tb"><td class="expr">half</td><td><span class="t">△</span></td><td></td><td></td><td><span class="o">○</span></td><td class="v">단수</td></tr>
+  <tr class="tb"><td class="expr">half</td><td><span class="t">△</span></td><td><span class="t">△</span><small>*덩어리(cake, class)만</small></td><td></td><td></td><td class="v">단수</td></tr>
+  <tr><td class="expr">half of + 대명사</td><td><span class="o">○</span></td><td></td><td></td><td></td><td class="v">대명사 따라</td></tr>
+  <tr class="tb"><td class="expr">both A and B / A and B</td><td><span class="x">✕</span></td><td><span class="x">✕</span></td><td><span class="o">○</span></td><td><span class="x">✕</span></td><td class="v">복수</td></tr>
+  <tr><td class="expr">both of + 대명사</td><td><span class="o">○</span></td><td></td><td><span class="o">○</span></td><td></td><td class="v">복수</td></tr>
+  </tbody></table>
+  </div>
+  <div class="notes">
+    * <b>한정사(the/my) 바로 붙기</b>: <b>all the ~, half the ~만 가능</b>. every the ✗, each the ✗ (→ each of the), most the ✗ (→ most of the)<br>
+    * <b>of △</b> = 대명사 앞 <b>필수</b>, 한정사 없는 명사 앞 <b>금지</b>, 한정사 있는 명사 앞은 all·half <b>선택</b> / most·some·percent <b>필수</b><br>
+    * <b>동사 "대명사 따라"</b> = you / us / them → 복수, it → 단수
+  </div>
+
+  <h3>① 주어 자리에 쓰여 수 일치가 걸리는 문장<small>5·6과 본문 · 대화 · Extra Reading · 단어 예문에서</small></h3>
+
+  <div class="sent"><div class="src">6과 Reading <span class="star">★</span><span>Club News</span></div><div class="en"><b>Each member has</b> a special energy.</div><div class="ko">각 구성원은 특별한 에너지를 가지고 있습니다.</div><div class="why">each + 단수명사 → 단수 동사 (교과서 대표 문장)</div></div>
+  <div class="sent"><div class="src">6과 Reading<span>Principal's Message</span></div><div class="en">Next week, <b>every student will get</b> a money diary.</div><div class="ko">다음 주에, 모든 학생들은 용돈 기입장을 받게 될 것입니다.</div><div class="why">every + 단수명사 (조동사 will이라 동사 형태 변화 없음)</div></div>
+  <div class="sent"><div class="src">6과 Extra Reading<span>Check Up</span></div><div class="en"><b>Every student must be</b> quiet in the library.</div><div class="ko">모든 학생은 도서관에서 조용히 해야 합니다.</div><div class="why">every + 단수명사 (조동사 must)</div></div>
+  <div class="sent"><div class="src">6과 단어 예문<span>each</span></div><div class="en"><b>Each student should be</b> on time.</div><div class="ko">각 학생은 제시간에 와야 한다.</div><div class="why">each + 단수명사 (조동사 should)</div></div>
+  <div class="sent"><div class="src">6과 Extra Reading<span>My Writing</span></div><div class="en"><b>All the students came</b> to cheer for the two classes.</div><div class="ko">모든 학생들이 두 반을 응원하기 위해 왔다.</div><div class="why">all the + 복수명사 → 복수 동사 (과거형이라 형태 동일)</div></div>
+  <div class="sent"><div class="src">6과 Reading<span>Student Survey</span></div><div class="en">Also, <b>80 percent of 3rd-year students saved</b> money, but only <b>30 percent of 1st-year students saved</b> money.</div><div class="ko">또한, 3학년 학생의 80%는 돈을 저축했지만, 1학년 학생의 겨우 30%만이 돈을 저축했습니다.</div><div class="why">percent of + 복수명사 → 복수 동사</div></div>
+  <div class="sent"><div class="src">6과 Reading<span>Student Survey</span></div><div class="en">Surprisingly, the survey showed that only <b>15 out of 100 students had</b> a spending plan.</div><div class="ko">놀랍게도, 설문 조사는 100명의 학생들 중 오직 15명만이 지출 계획을 가지고 있었다는 것을 보여 주었습니다.</div><div class="why">부분 표현 (15 out of 100 students) → 복수</div></div>
+  <div class="sent"><div class="src">6과 Reading<span>Club News</span></div><div class="en">Now, <b>there are 10 girls and 6 boys</b> in the club.</div><div class="ko">현재 그 동아리에는 10명의 소녀와 6명의 소년이 있습니다.</div><div class="why">A and B → 복수 (there are)</div></div>
+  <div class="sent"><div class="src">6과 Extra Reading<span>My Writing · 참고</span></div><div class="en"><b>One of the biggest events was</b> the final soccer game between Class 1 and 3.</div><div class="ko">가장 큰 행사 중 하나는 1반과 3반 사이의 축구 결승전이었다.</div><div class="why">one of + 복수명사 → 단수 동사 (부분 표현과 반대!)</div></div>
+  <div class="sent"><div class="src">6과 Reading<span>Student Survey · 참고</span></div><div class="en">Food was chosen by <b>the largest number of students</b>.</div><div class="ko">음식이 가장 많은 수의 학생들에 의해 선택되었습니다.</div><div class="why">the number of + 복수 = "~의 수" → 단수 취급 (교과서 문법 노트 7)</div></div>
+  <div class="sent"><div class="src">5과 Reading<span>Timothy · 참고</span></div><div class="en">This is because <b>lots of trees are</b> cut down to make animal farms.</div><div class="ko">이것은 동물 농장을 만들기 위해 많은 나무가 베어지기 때문이야.</div><div class="why">lots of + 복수명사 → 복수 동사 (명사 따라)</div></div>
+
+  <h3>② 표현은 나오지만 주어가 아닌 문장<small>every day / all the time / some ~ 등 — 형태 익히기용</small></h3>
+
+  <div class="sent"><div class="src">5과 Reading<span>Monica</span></div><div class="en">Many tourists come to see them <b>every year</b>.</div><div class="ko">많은 관광객들이 매년 그것들을 보러 와.</div></div>
+  <div class="sent"><div class="src">5과 Reading<span>Monica</span></div><div class="en">I had to wear tall rain boots <b>all the time</b>.</div><div class="ko">나는 줄곧 긴 장화를 신어야 했어.</div></div>
+  <div class="sent"><div class="src">5과 Reading<span>Suin</span></div><div class="en"><b>Every summer</b>, it rains a lot here.</div><div class="ko">매년 여름에 여기는 비가 많이 와.</div></div>
+  <div class="sent"><div class="src">5과 Reading<span>Suin</span></div><div class="en">Now, many students at my school are doing these three things <b>every day</b>.</div><div class="ko">지금, 우리 학교에서 많은 학생들이 이 세 가지를 매일 하고 있어.</div></div>
+  <div class="sent"><div class="src">5과 Dialogues<span>Topic 1 · A2</span></div><div class="en">Look at <b>all the plastic waste</b>!</div><div class="ko">저 모든 플라스틱 쓰레기를 봐!</div><div class="why">all the + 셀 수 없는 명사</div></div>
+  <div class="sent"><div class="src">5과 단어 예문<span>all the time</span></div><div class="en">He talked about games <b>all the time</b>.</div><div class="ko">그는 내내 게임에 대해 이야기했다.</div></div>
+  <div class="sent"><div class="src">5과 단어 예문<span>canal</span></div><div class="en">We walked by the canal and saw <b>some boats</b>.</div><div class="ko">우리는 운하 옆을 걸으며 몇몇 배들을 봤다.</div></div>
+  <div class="sent"><div class="src">6과 Dialogues<span>Topic 1 · A3</span></div><div class="en">It's important to get eight hours of sleep <b>every night</b>.</div><div class="ko">매일 밤 8시간의 잠을 자는 것이 중요해.</div></div>
+  <div class="sent"><div class="src">6과 Dialogues<span>Topic 1 · B</span></div><div class="en">It says many teens take selfies <b>every day</b>.</div><div class="ko">많은 십 대들이 매일 셀카를 찍는다고 쓰여 있어.</div></div>
+  <div class="sent"><div class="src">6과 Dialogues<span>Topic 2 · A</span></div><div class="en">Almost <b>every time</b> I think about exams.</div><div class="ko">제가 시험에 대해 생각할 때마다 거의 매번이요.</div></div>
+  <div class="sent"><div class="src">6과 Dialogues<span>Topic 2 · A</span></div><div class="en">You can take a walk and get <b>some fresh air</b>. Also, you can do <b>some stretching</b>.</div><div class="ko">너는 산책하며 신선한 공기를 좀 마실 수 있어. 또한, 스트레칭을 좀 할 수도 있어.</div><div class="why">some + 셀 수 없는 명사</div></div>
+  <div class="sent"><div class="src">6과 Dialogues<span>Topic 2 · B</span></div><div class="en">"It's important to practice <b>every day</b>.</div><div class="ko">"매일 연습하는 것이 중요해.</div></div>
+  <div class="sent"><div class="src">6과 Dialogues<span>Check Up · A</span></div><div class="en">It's important to walk your dog <b>every day</b>. That way, he can stay healthy.</div><div class="ko">너의 개를 매일 산책시키는 것이 중요해. 그런 식으로, 그는 건강을 유지할 수 있어.</div></div>
+  <div class="sent"><div class="src">6과 Dialogues<span>Check Up · A</span></div><div class="en">Okay, I'll start walking him <b>every day</b>.</div><div class="ko">알겠어, 그를 매일 산책시키는 것을 시작할게.</div></div>
+  <div class="sent"><div class="src">6과 Extra Reading<span>Check Up</span></div><div class="en">In the last few days, I heard <b>some students</b> talking loudly in the library.</div><div class="ko">지난 며칠 동안, 저는 도서관에서 몇몇 학생들이 큰 소리로 이야기하는 것을 들었습니다.</div><div class="why">some + 복수명사</div></div>
+  <div class="sent"><div class="src">6과 단어 예문<span>condition</span></div><div class="en">She is in great condition because she exercises <b>every day</b>.</div><div class="ko">그녀는 매일 운동을 하기 때문에 몸 상태가 아주 좋다.</div></div>
+  <div class="sent"><div class="src">6과 단어 예문<span>spend</span></div><div class="en">I spent <b>all my money</b> on clothes.</div><div class="ko">나는 모든 돈을 옷에 소비했다.</div><div class="why">all my + 셀 수 없는 명사</div></div>
+</section>
+
+</body>
+</html>
