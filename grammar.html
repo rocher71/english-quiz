@@ -177,10 +177,10 @@
     <span id="statusMsg">아직 채점 전</span>
     <span id="fillCount"></span>
     <button class="btn" onclick="resetAll()">다시 풀기</button>
-    <button class="btn primary" onclick="gradeAll()">채점하기</button>
+    <button class="btn primary" id="gradeBtn" onclick="gradeAll()">채점하기</button>
   </div>
   <div id="content"></div>
-  <footer>서술형은 철자·단어가 정확해야 자동 정답이에요(대소문자·마침표는 무시). 애매한 답은 "정답 처리"로 선생님이 직접 인정할 수 있어요.</footer>
+  <footer>① 다 풀고 채점하기 → 정답/오답만 표시 　② 틀린 문제 고친 뒤 다시 채점 　③ 문항별 "선생님 채점"으로 답·해설 확인, 애매한 답은 "정답 처리"<br>서술형은 철자·단어가 정확해야 자동 정답(대소문자·마침표 무시).</footer>
 </div>
 
 <script>
@@ -263,7 +263,7 @@ const SECTIONS = [
 const NUMS = "①②③④⑤";
 const ITEMS = [];
 SECTIONS.forEach(sec => sec.items.forEach(it => ITEMS.push(it)));
-let ans = {}, graded = null, over = {};
+let ans = {}, graded = null, first = null, rounds = 0, over = {}, open = {};
 
 function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function norm(s) { return s.toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9]/g, ""); }
@@ -302,6 +302,7 @@ function render() {
   }).join("");
   updateFill();
   if (graded) applyGrades();
+  else { document.getElementById("statusMsg").textContent = "아직 채점 전"; document.getElementById("gradeBtn").textContent = "채점하기"; }
 }
 
 function choose(n, i) { ans[n] = i; render(); }
@@ -322,14 +323,17 @@ function updateFill() {
   document.getElementById("fillCount").textContent = "작성 " + done + " / " + ITEMS.length;
 }
 
-function resetAll() { ans = {}; graded = null; over = {}; document.getElementById("statusMsg").textContent = "아직 채점 전"; render(); }
+function resetAll() { ans = {}; graded = null; first = null; rounds = 0; over = {}; open = {}; render(); }
 
+// 1차 채점 결과는 first에 고정, 이후 채점은 "틀린 것 고친 뒤" 결과로 graded만 갱신
 function gradeAll() {
   graded = {};
   ITEMS.forEach((it, i) => {
     const a = ans[i + 1];
     graded[i + 1] = (it.t === "mc" || it.t === "pick") ? a === it.a : it.a.some(x => norm(x) === norm(a || ""));
   });
+  if (!first) first = { ...graded };
+  rounds++;
   render();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -340,28 +344,36 @@ function answerText(it) {
   return it.a.map(esc).join(" &nbsp;/&nbsp; ");
 }
 
+function btn(label, cls, fn) {
+  const b = document.createElement("button");
+  b.className = "overbtn" + cls; b.textContent = label; b.onclick = fn; b.style.margin = "8px 6px 0 0";
+  return b;
+}
+
 function applyGrades() {
-  let ok = 0, ov = 0, wrong = 0;
   ITEMS.forEach((it, i) => {
     const n = i + 1;
     const card = document.querySelector('.item[data-n="' + n + '"]');
     const v = card.querySelector(".verdict"), box = card.querySelector(".answer");
-    card.classList.remove("correct", "wrong", "override");
-    const exp = '<div class="exp" style="margin-left:0">' + it.exp + "</div>";
-    if (graded[n]) { ok++; card.classList.add("correct"); v.textContent = "정답"; v.className = "verdict g"; box.innerHTML = exp; return; }
-    if (over[n]) { ov++; card.classList.add("override"); v.textContent = "선생님 인정"; v.className = "verdict o"; }
-    else { wrong++; card.classList.add("wrong"); v.textContent = "오답"; v.className = "verdict b"; }
-    box.innerHTML = "정답: <b>" + answerText(it) + "</b>" + exp;
-    const b = document.createElement("button");
-    b.className = "overbtn" + (over[n] ? " on" : "");
-    b.textContent = over[n] ? "✓ 선생님 인정됨 (취소)" : "정답 처리";
-    b.onclick = () => { over[n] = !over[n]; render(); };
-    box.after(b);
+    const pass = graded[n], od = over[n];
+    card.classList.add(pass ? "correct" : od ? "override" : "wrong");
+    v.textContent = pass ? "정답" : od ? "선생님 인정" : "오답";
+    v.className = "verdict " + (pass ? "g" : od ? "o" : "b");
+    // 답·해설은 선생님 채점 버튼을 눌렀을 때만 공개
+    if (open[n]) box.innerHTML = "정답: <b>" + answerText(it) + '</b><div class="exp" style="margin-left:0">' + it.exp + "</div>";
+    const row = document.createElement("div"); row.style.marginLeft = "34px";
+    row.append(btn(open[n] ? "답·해설 닫기" : "선생님 채점", open[n] ? " on" : "", () => { open[n] = !open[n]; render(); }));
+    if (open[n] && !pass) row.append(btn(od ? "✓ 선생님 인정됨 (취소)" : "정답 처리", od ? " on" : "", () => { over[n] = !over[n]; render(); }));
+    box.after(row);
   });
+  const cnt = g => { let ok = 0; ITEMS.forEach((it, i) => { if (g[i + 1] || (g === graded && over[i + 1])) ok++; }); return ok; };
+  const f = cnt(first), c = cnt(graded), T = ITEMS.length;
+  const ov = ITEMS.filter((it, i) => !graded[i + 1] && over[i + 1]).length;
   document.getElementById("statusMsg").innerHTML =
-    "<b class='g'>" + (ok + ov) + "</b> / " + ITEMS.length + " 정답　·　자동 <b class='g'>" + ok + "</b> · 인정 <b class='o'>" + ov + "</b> · 오답 <b class='b'>" + wrong + "</b>";
+    "처음 채점: 정답 <b class='g'>" + f + "</b> · 오답 <b class='b'>" + (T - f) + "</b>" + (rounds < 2 && !ov ? "" :
+    "　→　고친 후: 정답 <b class='g'>" + c + "</b>" + (ov ? " (인정 <b class='o'>" + ov + "</b>)" : "") + " · 오답 <b class='b'>" + (T - c) + "</b>");
+  document.getElementById("gradeBtn").textContent = "고친 후 다시 채점";
 }
-
 render();
 </script>
 </body>
