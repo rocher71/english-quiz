@@ -167,7 +167,7 @@
 <header>
   <div class="eyebrow">천일문 Grammar Level 3 · Ch 09 Unit 1</div>
   <h1>관계대명사 연습</h1>
-  <div class="lede">주격 · 목적격 · whose · what · 수 일치 — 고르기, 빈칸, 서술형을 다 풀고 채점하세요.</div>
+  <div class="lede">객관식 · 빈칸 · 서술형 36문항 — 다 풀고 채점하세요.</div>
 </header>
 <div style="height:16px"></div>
 
@@ -183,7 +183,7 @@
 </div>
 
 <script>
-// 섹션 t는 편집용 라벨(화면엔 Part 번호만 표시, 힌트 노출 금지)
+// 섹션 t는 편집용 라벨일 뿐 화면엔 안 나옴 (힌트 노출 금지, 전 문항 섞어서 출제)
 // t: mc(객관식) / pick(괄호 고르기) / blank(빈칸, ___) / write(서술형)
 // q·o·given은 직접 작성한 HTML(<u> 사용), a는 mc·pick이면 정답 인덱스, blank·write면 허용 답안 배열
 const SECTIONS = [
@@ -261,8 +261,11 @@ const SECTIONS = [
 ];
 
 const NUMS = "①②③④⑤";
-const ITEMS = [];
-SECTIONS.forEach(sec => sec.items.forEach(it => ITEMS.push(it)));
+// 섹션 구분 없이 전 문항을 섞어서 출제 (페이지 열 때·다시 풀기 때마다 새 순서)
+const ITEMS = SECTIONS.flatMap(sec => sec.items);
+function shuffle() {
+  for (let i = ITEMS.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ITEMS[i], ITEMS[j]] = [ITEMS[j], ITEMS[i]]; }
+}
 let ans = {}, graded = null, first = null, rounds = 0, over = {}, open = {};
 
 function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
@@ -292,13 +295,7 @@ function renderItem(it, n) {
 }
 
 function render() {
-  let n = 0;
-  document.getElementById("content").innerHTML = SECTIONS.map(sec => {
-    const r0 = n + 1;
-    const items = sec.items.map(it => renderItem(it, ++n)).join("");
-    return '<div class="section"><div class="sechead"><span class="range">' + String(r0).padStart(2, "0") + "–" + String(n).padStart(2, "0") +
-      '</span><span class="st">Part ' + (SECTIONS.indexOf(sec) + 1) + "</span></div>" + items + "</div>";
-  }).join("");
+  document.getElementById("content").innerHTML = ITEMS.map((it, i) => renderItem(it, i + 1)).join("");
   updateFill();
   if (graded) applyGrades();
   else { document.getElementById("statusMsg").textContent = "아직 채점 전"; document.getElementById("gradeBtn").textContent = "채점하기"; }
@@ -322,7 +319,7 @@ function updateFill() {
   document.getElementById("fillCount").textContent = "작성 " + done + " / " + ITEMS.length;
 }
 
-function resetAll() { ans = {}; graded = null; first = null; rounds = 0; over = {}; open = {}; render(); }
+function resetAll() { ans = {}; graded = null; first = null; rounds = 0; over = {}; open = {}; shuffle(); render(); }
 
 // 1차 채점 결과는 first에 고정, 이후 채점은 "틀린 것 고친 뒤" 결과로 graded만 갱신
 function gradeAll() {
@@ -373,6 +370,7 @@ function applyGrades() {
     "　→　고친 후: 정답 <b class='g'>" + c + "</b>" + (ov ? " (인정 <b class='o'>" + ov + "</b>)" : "") + " · 오답 <b class='b'>" + (T - c) + "</b>");
   document.getElementById("gradeBtn").textContent = "고친 후 다시 채점";
 }
+shuffle();
 render();
 </script>
 </body>
