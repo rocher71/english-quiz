@@ -152,7 +152,6 @@
   .pk { display: inline-block; padding: 1px 10px; margin: 0 2px; border-radius: 999px; }
   .opt.sel, .pk.sel { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
   .exp { margin: 6px 0 0 34px; font-size: 13px; color: var(--muted); }
-  .sechead .tip { display: block; font-size: 12.5px; color: var(--muted); margin-top: 4px; font-weight: 400; }
 </style>
 </head>
 <body>
@@ -184,10 +183,11 @@
 </div>
 
 <script>
+// 섹션 t는 편집용 라벨(화면엔 Part 번호만 표시, 힌트 노출 금지)
 // t: mc(객관식) / pick(괄호 고르기) / blank(빈칸, ___) / write(서술형)
 // q·o·given은 직접 작성한 HTML(<u> 사용), a는 mc·pick이면 정답 인덱스, blank·write면 허용 답안 배열
 const SECTIONS = [
-  { t: "주격 관계대명사", s: "who / which / that + 동사", tip: "선행사가 사람 → who, 사물·동물 → which, 둘 다 → that. 주격 관계대명사 + be동사는 함께 생략할 수 있어요.", items: [
+  { t: "주격 관계대명사", items: [
     { t: "pick", q: "I know a girl [[]] speaks three languages.", o: ["who", "which"], a: 0, exp: "선행사 a girl(사람) + 뒤에 동사 speaks → 주격 who." },
     { t: "pick", q: "This is the bus [[]] goes to the airport.", o: ["who", "which"], a: 1, exp: "선행사 the bus(사물) → which." },
     { t: "pick", q: "The man [[]] lives upstairs is a pilot.", o: ["who", "whom"], a: 0, exp: "뒤에 바로 동사 lives가 오므로 주격 who. whom은 목적격." },
@@ -201,7 +201,7 @@ const SECTIONS = [
     { t: "write", q: "밑줄 친 부분을 생략하여 문장을 다시 쓰세요.", given: "The letter <u>which was</u> written by my grandma is on the desk.",
       a: ["The letter written by my grandma is on the desk."], exp: "주격 관계대명사 + be동사 생략 → p.p.(written)가 명사를 뒤에서 꾸밈." }
   ]},
-  { t: "목적격 관계대명사", s: "who(m) / which / that + 주어 + 동사", tip: "관계대명사 뒤에 '주어 + 동사'가 오고, 동사의 목적어가 빠져 있어요. 목적격 관계대명사는 생략할 수 있어요.", items: [
+  { t: "목적격 관계대명사", items: [
     { t: "pick", q: "The movie [[]] we watched yesterday was boring.", o: ["which", "who"], a: 0, exp: "선행사 The movie(사물) + 뒤에 주어 we → 목적격 which." },
     { t: "pick", q: "She is the teacher [[]] I respect the most.", o: ["whom", "which"], a: 0, exp: "선행사 the teacher(사람) + 뒤에 주어 I → 목적격 whom." },
     { t: "blank", q: "This is the cake ___ my mom made.", ko: "이것은 엄마가 만든 케이크이다. (관계대명사 1단어)", a: ["which", "that"], exp: "the cake(사물), made의 목적어 → which[that]." },
@@ -213,7 +213,7 @@ const SECTIONS = [
     { t: "write", q: "주어진 단어를 사용하여 우리말을 영작하세요. (whom, meet)", given: "내가 어제 만난 소년은 Tom이다.",
       a: ["The boy whom I met yesterday is Tom."], exp: "the boy를 whom I met yesterday가 꾸밈. 문장의 동사는 is." }
   ]},
-  { t: "소유격 관계대명사", s: "whose + 명사 + 동사", tip: "선행사의 종류와 상관없이 whose. 뒤에 반드시 명사가 와요. 사물이면 「명사 + of which」로도 쓸 수 있어요.", items: [
+  { t: "소유격 관계대명사", items: [
     { t: "pick", q: "I have a friend [[]] father is a doctor.", o: ["whose", "who"], a: 0, exp: "friend's father → 뒤에 명사 father → whose." },
     { t: "pick", q: "Look at the house [[]] roof is green.", o: ["whose", "which"], a: 0, exp: "the house's roof → 사물이어도 whose." },
     { t: "blank", q: "He met a girl ___ name is Mina.", ko: "그는 이름이 미나인 소녀를 만났다.", a: ["whose"], exp: "her name → whose name." },
@@ -225,7 +225,7 @@ const SECTIONS = [
     { t: "write", q: "「명사 + of which」를 사용하여 같은 뜻의 문장으로 다시 쓰세요.", given: "I bought a car whose color is red.",
       a: ["I bought a car the color of which is red."], exp: "whose color = the color of which (선행사가 사물일 때)." }
   ]},
-  { t: "관계대명사 what", s: "what = the thing(s) which[that]", tip: "what은 선행사를 품고 있어서 앞에 선행사가 없어요. '~하는 것'으로 해석하고, 주어·목적어·보어로 쓰여요.", items: [
+  { t: "관계대명사 what", items: [
     { t: "pick", q: "[[]] I need now is a cup of water.", o: ["What", "That"], a: 0, exp: "선행사 없음 + need의 목적어 빠짐 → What(내가 지금 필요한 것)." },
     { t: "pick", q: "This is the bag [[]] my dad gave me.", o: ["what", "which"], a: 1, exp: "선행사 the bag이 있으므로 which. what은 선행사와 함께 못 씀." },
     { t: "pick", q: "I can't believe [[]] he said.", o: ["what", "which"], a: 0, exp: "선행사 없음 → what(그가 말한 것)." },
@@ -238,7 +238,7 @@ const SECTIONS = [
     { t: "write", q: "주어진 단어를 사용하여 우리말을 영작하세요. (what, make, delicious)", given: "그녀가 만든 것은 정말 맛있었다.",
       a: ["What she made was really delicious.", "What she made was very delicious.", "What she made was so delicious."], exp: "What she made(그녀가 만든 것)가 주어 → 단수 동사 was." }
   ]},
-  { t: "관계대명사와 수 일치", s: "선행사에 맞추기 · 문장의 주어 찾기", tip: "주격 관계대명사절의 동사는 선행사에 맞춰요. 관계대명사 바로 앞 명사가 늘 선행사인 건 아니에요. 주어로 쓰인 what절은 단수예요.", items: [
+  { t: "관계대명사와 수 일치", items: [
     { t: "pick", q: "The girl who [[]] the piano is my sister.", o: ["play", "plays"], a: 1, exp: "선행사 The girl(단수) → plays." },
     { t: "pick", q: "The books which I borrowed from the library [[]] heavy.", o: ["is", "are"], a: 1, exp: "문장의 주어는 The books(복수). library에 속지 말 것." },
     { t: "pick", q: "What you need to do first [[]] to wash your hands.", o: ["is", "are"], a: 0, exp: "주어로 쓰인 what절 → 단수 취급." },
@@ -250,7 +250,7 @@ const SECTIONS = [
     { t: "write", q: "어법상 틀린 부분 <b>2군데</b>를 고쳐 문장 전체를 다시 쓰세요.", given: "The boy who live next door have a big dog.",
       a: ["The boy who lives next door has a big dog."], exp: "선행사 The boy(단수) → lives / 문장의 주어 The boy → has." }
   ]},
-  { t: "종합 서술형", s: "두 문장 연결", tip: "빠진 자리가 주어인지, 목적어인지, 소유격인지 먼저 확인하세요.", items: [
+  { t: "종합 서술형", items: [
     { t: "write", q: "관계대명사를 사용하여 두 문장을 한 문장으로 쓰세요.", given: "The woman is a famous writer. + Her book won a prize.",
       a: ["The woman whose book won a prize is a famous writer."], exp: "Her book → whose book. 관계대명사절이 주어 The woman 바로 뒤에 들어감." },
     { t: "write", q: "관계대명사를 사용하여 두 문장을 한 문장으로 쓰세요.", given: "The song is my favorite. + You sang it at the festival.",
@@ -297,8 +297,7 @@ function render() {
     const r0 = n + 1;
     const items = sec.items.map(it => renderItem(it, ++n)).join("");
     return '<div class="section"><div class="sechead"><span class="range">' + String(r0).padStart(2, "0") + "–" + String(n).padStart(2, "0") +
-      '</span><span class="st">' + sec.t + '</span><span class="ss">' + sec.s + "</span></div>" +
-      '<div class="sechead" style="border:0;padding-top:4px"><span class="tip">💡 ' + sec.tip + "</span></div>" + items + "</div>";
+      '</span><span class="st">Part ' + (SECTIONS.indexOf(sec) + 1) + "</span></div>" + items + "</div>";
   }).join("");
   updateFill();
   if (graded) applyGrades();
