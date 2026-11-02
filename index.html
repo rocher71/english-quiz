@@ -16,7 +16,7 @@
     background: var(--bg); color: var(--ink);
     font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
     min-height: 100vh; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; padding: 40px 20px;
+    align-items: center; padding: 40px 16px;
   }
   .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 6px; color: var(--accent); }
   h1 { font-family: "Gowun Batang", serif; font-size: clamp(30px, 6vw, 44px); letter-spacing: 3px; margin: 12px 0 34px; }
@@ -29,34 +29,58 @@
   nav a:hover { border-color: var(--accent); }
   nav a .t { font-family: "Gowun Batang", serif; font-weight: 700; font-size: 19px; }
   nav a .d { color: var(--muted); font-size: 13px; margin-top: 4px; }
-  footer { margin-top: 40px; color: var(--muted); font-size: 12px; }
+  section { width: 100%; max-width: 460px; margin-bottom: 30px; }
+  h2 {
+    font-family: "Gowun Batang", serif; font-size: 17px; font-weight: 700;
+    margin: 0 0 10px 4px; padding-bottom: 6px; border-bottom: 1px solid var(--line);
+  }
+  h2 span { font-family: "Noto Sans KR", sans-serif; font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 6px; }
 </style>
 </head>
 <body>
-  <div class="eyebrow">2학기 중간고사 대비</div>
+  <div class="eyebrow">중2 영어 · 동아(이병민)</div>
   <h1>영어 시험장</h1>
-  <nav>
-    <a href="words.html">
-      <div class="t">단어 시험장 📝</div>
-      <div class="d">교과서 WORDS 60 · 영영풀이/예문 빈칸 5과 33 + 6과 32 (통합 65문항)</div>
-    </a>
-    <a href="passages.html">
-      <div class="t">본문 시험장 ✍️</div>
-      <div class="d">5과 · 6과 · 통합 — Reading · Dialogues · Extra Reading · 단어 예문 (영작 &amp; 빈칸)</div>
-    </a>
-    <a href="notes.html">
-      <div class="t">핵심 정리 📌</div>
-      <div class="d">6과 수 일치 표 + 교과서·유인물 속 실제 문장 모음</div>
-    </a>
-    <a href="grammar.html">
-      <div class="t">문법 연습 🧩</div>
-      <div class="d">관계대명사 (천일문 Level 3 Ch 09 Unit 1) — 객관식 · 빈칸 · 서술형 36문항</div>
-    </a>
-    <a href="idioms.html">
-      <div class="t">Idiom 연습 💬</div>
-      <div class="d">p.132–133 · Worksheet idiom 13개 — 뜻이 드러나게 문장 바꿔 쓰기</div>
-    </a>
-  </nav>
-  <footer>5과 · 6과 (2학년 동아 이병민)</footer>
+
+  <section>
+    <h2>2학기 기말 <span>7과 · 8과</span></h2>
+    <nav>
+      <a href="words.html?exam=final">
+        <div class="t">단어 시험장 📝</div>
+        <div class="d">학교 유인물 영영풀이 · 예문 빈칸 — 7과 31 + 8과 30 (통합 61문항)</div>
+      </a>
+      <a href="idioms.html">
+        <div class="t">Idiom 연습 💬</div>
+        <div class="d">p.132–133 · Worksheet idiom 13개 — 뜻이 드러나게 문장 바꿔 쓰기</div>
+      </a>
+    </nav>
+  </section>
+
+  <section>
+    <h2>2학기 중간 <span>5과 · 6과</span></h2>
+    <nav>
+      <a href="words.html">
+        <div class="t">단어 시험장 📝</div>
+        <div class="d">교과서 WORDS 60 · 영영풀이/예문 빈칸 5과 33 + 6과 32 (통합 65문항)</div>
+      </a>
+      <a href="passages.html">
+        <div class="t">본문 시험장 ✍️</div>
+        <div class="d">5과 · 6과 · 통합 — Reading · Dialogues · Extra Reading · 단어 예문 (영작 &amp; 빈칸)</div>
+      </a>
+      <a href="notes.html">
+        <div class="t">핵심 정리 📌</div>
+        <div class="d">6과 수 일치 표 + 교과서·유인물 속 실제 문장 모음</div>
+      </a>
+    </nav>
+  </section>
+
+  <section>
+    <h2>추가 연습 <span>내신 범위 밖</span></h2>
+    <nav>
+      <a href="grammar.html">
+        <div class="t">문법 연습 🧩</div>
+        <div class="d">관계대명사 (천일문 Level 3 Ch 09 Unit 1) — 객관식 · 빈칸 · 서술형 36문항</div>
+      </a>
+    </nav>
+  </section>
 </body>
 </html>

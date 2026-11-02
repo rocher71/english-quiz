@@ -330,20 +330,93 @@ const SCHOOL6 = [
   { w: "trust", form: "trusts", mean: ["믿다", "신뢰하다"], def: "to believe that someone or something is reliable, good, honest, etc", ex: "He trusts his teammates.", exko: "그는 그의 팀원들을 믿는다." }
 ];
 
+// 7과 학교 유인물 Word List (31단어)
+const SCHOOL7 = [
+  { w: "actually", form: "actually", mean: ["실제로", "정말로", "사실은"], def: "used to show that something is true, especially when it is not what you expected", ex: "The food looks bad, but it is actually tasty.", exko: "그 음식은 보기에 별로지만, 사실 맛있다." },
+  { w: "ancient", form: "ancient", mean: ["고대의"], def: "belonging to the very distant past and no longer in existence", ex: "The ancient pyramids in Egypt are very famous.", exko: "이집트의 고대 피라미드는 매우 유명하다." },
+  { w: "bean", form: "Beans", mean: ["콩"], def: "a seed you can eat, usually shaped like a kidney, that grows in long pods on bean plants", ex: "Beans can make your heart healthy.", exko: "콩은 네 심장을 건강하게 만들 수 있다." },
+  { w: "behind", form: "behind", mean: ["(위치) ~ 뒤에", "~ 배후에", "숨겨져 있는"], def: "the cause, basis, or reason for something", ex: "The reason behind his success is hard work.", exko: "그의 성공 뒤의 숨겨진 이유는 그의 노력이다." },
+  { w: "break", form: "broke", mean: ["부러지다", "부수다"], def: "to be damaged and separated into two or more parts suddenly and with force", ex: "He broke his arm during a baseball game.", exko: "그는 야구 경기 중에 팔이 부러졌다." },
+  { w: "cancel", form: "canceled", mean: ["취소하다"], def: "to decide that something (such as a game, performance, etc.) will not happen", ex: "They canceled the concert because the singer was sick.", exko: "그들은 가수가 아파서 콘서트를 취소했다." },
+  { w: "catchy", form: "catchy", mean: ["기억하기 쉬운"], def: "appealing and easy to remember", ex: "Popular songs often have catchy melodies.", exko: "인기 있는 노래들은 종종 기억하기 쉬운 멜로디들을 가지고 있다." },
+  { w: "complete", form: "completed", mean: ["완료하다", "완성하다"], def: "to finish making or doing (something)", ex: "She completed the puzzle in just 10 minutes.", exko: "그녀는 단 10분 만에 퍼즐을 끝냈다." },
+  { w: "disappointed", form: "disappointed", mean: ["실망한", "낙담한"], def: "feeling sad because something didn't turn out as you hoped", ex: "He was disappointed that the soccer game was canceled.", exko: "그는 축구 경기가 취소되어 실망했다." },
+  { w: "earworm", form: "earworm", mean: ["자꾸 귓전에 맴도는 곡조", "귓전에 맴도는 곡조", "귀에 맴도는 곡조"], def: "a song or melody that keeps repeating in one's mind", ex: "This new pop song is a real earworm.", exko: "이 새로운 팝송은 귓가에 계속 맴돈다." },
+  { w: "example", form: "example", mean: ["예", "보기"], def: "a person or thing used to explain your point or to show that a general statement is true", ex: "An apple is a great example of a healthy snack.", exko: "사과는 건강한 간식의 좋은 예이다." },
+  { w: "expression", form: "expressions", mean: ["표현"], def: "a word or phrase", ex: "The teacher taught us many helpful expressions.", exko: "선생님은 우리에게 도움이 되는 많은 표현들을 가르쳐 주었다." },
+  { w: "go away", form: "go away", mean: ["없어지다", "(떠나)가다", "떠나가다"], def: "to stop existing or happening", ex: "I'm sure my worries will go away soon.", exko: "나는 내 걱정들이 곧 없어질 거라고 확신한다." },
+  { w: "idiom", form: "idioms", mean: ["숙어", "관용구"], def: "a phrase whose meaning isn't clear from the individual words, because it has its own special meaning", ex: "She learns new idioms to improve her English.", exko: "그녀는 영어 실력을 향상시키기 위해 새로운 숙어를 배운다." },
+  { w: "later", form: "later", mean: ["나중에", "이후에"], def: "coming or happening after a certain time or at a future time", ex: "I will send you a text message later.", exko: "내가 나중에 너에게 문자 메시지를 보낼게." },
+  { w: "latest", form: "latest", mean: ["최신의", "최근의"], def: "most recent", ex: "She showed me the latest version of the app.", exko: "그녀는 나에게 그 앱의 최신 버전을 보여주었다." },
+  { w: "offer", form: "offer", mean: ["제의", "제안", "제안하다"], def: "the act of offering something", ex: "He got an offer to work at a new company.", exko: "그는 새로운 회사에서 일하라는 제안을 받았다." },
+  { w: "over time", form: "Over time", mean: ["시간이 지나면서", "시간이 지남에 따라"], def: "gradually or during a period of time", ex: "Over time, the city became more popular.", exko: "시간이 지나면서, 그 도시는 더 인기가 많아졌다." },
+  { w: "phrase", form: "phrase", mean: ["어구", "구절"], def: "a group of words that shows one idea but isn't a full sentence", ex: "I learned a new English phrase today in class.", exko: "나는 오늘 수업 시간에 새로운 영어 어구를 배웠다." },
+  { w: "play", form: "play", mean: ["연극", "희곡", "놀이", "놀다"], def: "a story written to be acted out on stage, where actors tell the story with their words and actions", ex: "The play is based on a true story.", exko: "그 연극은 실제 이야기를 바탕으로 한다." },
+  { w: "politely", form: "politely", mean: ["예의 바르게", "공손하게", "정중하게"], def: "in a kind and respectful way", ex: "Behave politely when you talk to adults.", exko: "어른들에게 말할 때 예의 바르게 행동하세요." },
+  { w: "prepare", form: "prepare", mean: ["준비하다"], def: "to make (someone or something) ready for some activity, purpose, use, etc.", ex: "Let's prepare some presents for Christmas.", exko: "크리스마스를 위해 선물을 좀 준비하자." },
+  { w: "public", form: "public", mean: ["공공의", "공중의", "대중의"], def: "provided, especially by the government, for the use of people in general", ex: "The public library offers free books to everyone.", exko: "공공 도서관은 모두에게 무료 책을 제공한다." },
+  { w: "refuse", form: "refuse", mean: ["(요청·부탁 등을) 거절하다", "거부하다"], def: "to say that you will not accept or do something", ex: "I refuse to watch scary movies.", exko: "나는 무서운 영화를 보는 것을 거절한다." },
+  { w: "reveal", form: "reveal", mean: ["드러내다", "폭로하다"], def: "to make (something) known", ex: "The book will reveal the secret at the end.", exko: "그 책은 끝부분에서 그 비밀을 드러낼 것이다." },
+  { w: "spill", form: "spilled", mean: ["쏟다", "흘리다"], def: "to accidentally make liquid fall out of a container", ex: "She spilled the drink on the floor.", exko: "그녀는 바닥에 음료를 쏟았다." },
+  { w: "success", form: "success", mean: ["성공"], def: "something that achieves positive results", ex: "Their performance became a huge success.", exko: "그들의 공연은 큰 성공을 거두었다." },
+  { w: "viewer", form: "viewers", mean: ["시청자"], def: "a person who sees or looks at something", ex: "Many viewers love this TV program.", exko: "많은 시청자들이 이 TV 프로그램을 아주 좋아한다." },
+  { w: "vote", form: "vote", mean: ["투표하다", "투표"], def: "to cast or conduct a vote", ex: "We will vote for the class president tomorrow.", exko: "우리는 내일 학급 반장을 뽑기 위해 투표할 것이다." },
+  { w: "wish", form: "wish", mean: ["~을 빌다", "바라다", "소원하다"], def: "to want something to happen or be true", ex: "I wish you good luck.", exko: "나는 네 행운을 빌어." },
+  { w: "wonder", form: "wonders", mean: ["경이", "경탄", "놀라움"], def: "something or someone that is very surprising, beautiful, amazing, etc.", ex: "There are many wonders in nature.", exko: "자연에는 많은 경이로움이 있다." }
+];
+
+// 8과 학교 유인물 Word List (30단어)
+const SCHOOL8 = [
+  { w: "along", form: "along", mean: ["~을 따라"], def: "in a line matching the length or direction of (something)", ex: "They walked slowly along the street.", exko: "그들은 거리를 따라 천천히 걸었다." },
+  { w: "be made up of", form: "is made up of", mean: ["~로 구성되다", "구성되다", "이루어지다"], def: "to consist of or be composed of different parts or elements", ex: "A soccer team is made up of 11 players.", exko: "한 축구팀은 11명의 선수로 구성되어 있다." },
+  { w: "both", form: "Both", mean: ["~도", "모두", "둘 다", "양쪽"], def: "used to emphasize not just one, but the other as well", ex: "Both the boy and the girl are smiling.", exko: "그 남자아이와 여자아이 모두 웃고 있다." },
+  { w: "carnival", form: "carnival", mean: ["카니발", "축제"], def: "an event where many people gather to celebrate something", ex: "We saw an amazing parade at the carnival.", exko: "우리는 카니발에서 굉장한 퍼레이드를 봤다." },
+  { w: "castle", form: "castle", mean: ["성"], def: "a large, old building with tall, thick walls and towers built to defend against attacks", ex: "The tour guide told us the history of the castle.", exko: "여행 가이드는 우리에게 그 성의 역사를 이야기해 주었다." },
+  { w: "drink", form: "drink", mean: ["음료", "마실 것"], def: "a liquid that you can drink; beverage", ex: "I would like to order a cold drink.", exko: "나는 차가운 음료를 주문하고 싶다." },
+  { w: "fantastic", form: "fantastic", mean: ["환상적인", "굉장한", "멋진"], def: "extremely good", ex: "The view from the mountain is fantastic.", exko: "산에서 보이는 경치가 환상적이다." },
+  { w: "hold", form: "holds", mean: ["열다", "개최하다"], def: "to organize or arrange an event, meeting, or activity for people to attend", ex: "Our school holds sports day every year.", exko: "우리 학교는 매년 운동회를 개최한다." },
+  { w: "icy", form: "icy", mean: ["얼음의", "얼음으로 덮인"], def: "covered with or consisting of ice", ex: "Be careful when you drive on icy roads.", exko: "얼어붙은 도로에서 운전할 때 주의해라." },
+  { w: "look forward to", form: "looking forward to", mean: ["~을 기대하다", "기대하다"], def: "to expect (something) with pleasure", ex: "She is looking forward to the summer vacation.", exko: "그녀는 여름 방학을 기대하고 있다." },
+  { w: "make it", form: "made it", mean: ["해내다", "성공하다"], def: "to reach a particular place, goal, etc.", ex: "She worked hard and finally made it.", exko: "그녀는 열심히 노력해서 마침내 해냈다." },
+  { w: "mascot", form: "mascot", mean: ["마스코트", "행운을 가져다 주는 것"], def: "a character or symbol representing a team, organization, or brand, often used for good luck", ex: "The blue bear is our team's mascot.", exko: "파란 곰은 우리 팀의 마스코트이다." },
+  { w: "miss", form: "miss", mean: ["놓치다"], def: "to fail to use (something, such as an opportunity)", ex: "Don't miss the opportunity to see the concert!", exko: "그 콘서트를 볼 기회를 놓치지 마!" },
+  { w: "narrow", form: "narrow", mean: ["좁은"], def: "long and not wide, small from one side to the other side", ex: "When you cross a narrow bridge, you should be careful.", exko: "좁은 다리를 건널 때, 너는 조심해야 한다." },
+  { w: "participate", form: "participate", mean: ["참여하다", "참가하다"], def: "to be involved with others in doing something", ex: "They will participate in the drawing contest.", exko: "그들은 그림 대회에 참가할 것이다." },
+  { w: "performance", form: "performance", mean: ["공연", "연주", "성과"], def: "an act, like singing or acting, done to entertain an audience", ex: "He gave a great performance in front of his friends.", exko: "그는 친구들 앞에서 멋진 공연을 보여주었다." },
+  { w: "pick", form: "picked", mean: ["(과일 등을) 따다", "고르다", "선택하다"], def: "to remove a fruit, flower, etc. from a plant especially by using your hand", ex: "We picked some grapes from the tree.", exko: "우리는 나무에서 포도를 좀 땄다." },
+  { w: "place", form: "placed", mean: ["놓다", "두다", "장소"], def: "to put something in a particular position", ex: "She placed the book on the desk.", exko: "그녀는 책을 책상 위에 놓았다." },
+  { w: "pour", form: "poured", mean: ["붓다", "따르다"], def: "to make something flow from a container", ex: "He poured the milk into a cup.", exko: "그는 우유를 컵에 부었다." },
+  { w: "race", form: "race", mean: ["경주", "경주하다"], def: "a competition between people, animals, vehicles, etc., to see which one is fastest", ex: "He didn't win the race, but he did his best.", exko: "그는 경주에서 이기지는 못했지만, 그는 최선을 다했다." },
+  { w: "roast", form: "roast", mean: ["굽다", "구워서 요리하다"], def: "to cook (food such as chicken, potatoes, or beef) with dry heat in an oven or over a fire", ex: "We will roast some potatoes with onions.", exko: "우리는 감자를 양파와 함께 구울 것이다." },
+  { w: "roll", form: "rolled", mean: ["굴리다"], def: "to move across the ground or another surface by turning over and over", ex: "The children rolled a big snowball.", exko: "아이들이 큰 눈덩이를 굴렸다." },
+  { w: "sculpture", form: "sculpture", mean: ["조각", "조각품"], def: "a piece of art that is made by carving or molding clay, stone, metal, etc.", ex: "We saw a lion sculpture at the art gallery.", exko: "우리는 미술관에서 사자 조각품을 보았다." },
+  { w: "sled", form: "sled", mean: ["썰매"], def: "a small vehicle for snow or ice that uses long pieces of wood or metal instead of wheels", ex: "She used a big sled to go down the hill quickly.", exko: "그녀는 언덕을 빠르게 내려가기 위해 큰 썰매를 사용했다." },
+  { w: "slide", form: "slides", mean: ["미끄러지다", "미끄럼틀"], def: "to move smoothly along a surface like ice or snow", ex: "The sled slides across the snow.", exko: "썰매가 눈 위를 가로질러 미끄러져 간다." },
+  { w: "stuck", form: "stuck", mean: ["갇힌", "(~에 빠져) 움직일 수 없는", "움직일 수 없는"], def: "difficult or impossible to move from a position", ex: "He was stuck in the elevator for 30 minutes.", exko: "그는 30분 동안 엘리베이터에 갇혔다." },
+  { w: "taste", form: "taste", mean: ["맛보다"], def: "to put a small amount of food or drink to find out its flavor", ex: "Let's taste this chocolate cake together!", exko: "이 초콜릿 케이크를 함께 맛보자!" },
+  { w: "through", form: "through", mean: ["~을 통해", "~을 지나서"], def: "from one side or end to another side or end of (something)", ex: "We walked through the park.", exko: "우리는 공원을 지나 걸었다." },
+  { w: "treat", form: "treat", mean: ["간식"], def: "something that tastes good and that is not eaten often", ex: "I gave my dog a special treat after the walk.", exko: "나는 산책 후에 나의 개에게 특별한 간식을 주었다." },
+  { w: "unforgettable", form: "unforgettable", mean: ["잊지 못할", "잊을 수 없는"], def: "very special, unusual, beautiful, etc., and therefore difficult or impossible to forget", ex: "The trip was an unforgettable experience.", exko: "그 여행은 잊지 못할 경험이었다." }
+];
+
+// ?exam=final → 2학기 기말(7·8과) 유인물만, 없으면 2학기 중간(5·6과)
+const FINAL = new URLSearchParams(location.search).get("exam") === "final";
+const SCHOOL = { 5: SCHOOL5, 6: SCHOOL6, 7: SCHOOL7, 8: SCHOOL8 };
 const TYPES = [
   ["words", "교과서 WORDS", "5과 · 2학년 동아(이병민)", "품사 다중 선택 + 뜻 작성. part·save는 모든 뜻 필수, 그 외는 품사별 뜻 1개."],
   ["defs", "영영풀이", "학교 유인물", "영영 풀이를 보고 영어 단어와 한글 뜻을 쓰세요. 품사는 없습니다."],
   ["blanks", "예문 빈칸", "학교 유인물", "예문의 빈칸에 알맞은 단어를 쓰세요. ed·s 등 형태까지 정확해야 정답."]
-];
-const LESSONS = [["5", "5과"], ["6", "6과"], ["56", "5·6 통합"]];
+].filter(t => !FINAL || t[0] !== "words");
+const LESSONS = FINAL ? [["7", "7과"], ["8", "8과"], ["78", "7·8 통합"]] : [["5", "5과"], ["6", "6과"], ["56", "5·6 통합"]];
 const POS_ALL = ["명", "동", "형", "부"];
-let curType = "words";
-let curLesson = "5";
+let curType = FINAL ? "defs" : "words";
+let curLesson = LESSONS[0][0];
+if (FINAL) document.title = "단어 시험장 · 기말";
 const store = {};   // type|lesson → { order, state: {idx → {...}}, graded: bool }
 
 function bank() {
   if (curType === "words") return WORDS;
-  return curLesson === "6" ? SCHOOL6 : curLesson === "56" ? SCHOOL5.concat(SCHOOL6) : SCHOOL5;
+  return [...curLesson].flatMap(l => SCHOOL[l]);
 }
 function skey() { return curType + "|" + (curType === "words" ? "" : curLesson); }
 function S() {
@@ -366,7 +439,7 @@ function render() {
     '<button class="' + (curType === tt[0] ? "on" : "") + '" onclick="setType(\'' + tt[0] + '\')">' + tt[1] + "</button>").join("");
   document.getElementById("lessonRow").innerHTML = curType === "words" ? "" : LESSONS.map(l =>
     '<button class="' + (curLesson === l[0] ? "on" : "") + '" onclick="setLesson(\'' + l[0] + '\')">' + l[1] + "</button>").join("");
-  document.getElementById("subTitle").textContent = t[2] + " · " + bank().length + "문항";
+  document.getElementById("subTitle").textContent = (FINAL ? "2학기 기말 · " : "2학기 중간 · ") + t[2] + " · " + bank().length + "문항";
   document.getElementById("footNote").textContent = t[3] + " 자동 채점 후 \"정답 처리\"로 선생님이 직접 인정할 수 있어요.";
 
   const s = S(), list = document.getElementById("list");
