@@ -132,6 +132,7 @@
   }
   .meaning { flex: 1; min-width: 200px; }
   .wordin { width: 200px; font-family: "Lora", Georgia, serif; }
+  .wordin.sentin { width: 100%; font-size: 16px; }
   .meaning:focus, .wordin:focus, .blank:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
   .meaning::placeholder, .wordin::placeholder { color: var(--muted); opacity: .7; }
   .blank {
@@ -405,7 +406,8 @@ const SCHOOL = { 5: SCHOOL5, 6: SCHOOL6, 7: SCHOOL7, 8: SCHOOL8 };
 const TYPES = [
   ["words", "교과서 WORDS", "5과 · 2학년 동아(이병민)", "품사 다중 선택 + 뜻 작성. part·save는 모든 뜻 필수, 그 외는 품사별 뜻 1개."],
   ["defs", "영영풀이", "학교 유인물", "영영 풀이를 보고 영어 단어와 한글 뜻을 쓰세요. 품사는 없습니다."],
-  ["blanks", "예문 빈칸", "학교 유인물", "예문의 빈칸에 알맞은 단어를 쓰세요. ed·s 등 형태까지 정확해야 정답."]
+  ["blanks", "예문 빈칸", "학교 유인물", "예문의 빈칸에 알맞은 단어를 쓰세요. ed·s 등 형태까지 정확해야 정답."],
+  ["sents", "예문 영작", "학교 유인물", "우리말 뜻을 보고 예문 전체를 영어로 쓰세요. 대소문자·문장부호는 채점하지 않고, 단어는 예문과 똑같아야 정답."]
 ].filter(t => !FINAL || t[0] !== "words");
 const LESSONS = FINAL ? [["7", "7과"], ["8", "8과"], ["78", "7·8 통합"]] : [["5", "5과"], ["6", "6과"], ["56", "5·6 통합"]];
 const POS_ALL = ["명", "동", "형", "부"];
@@ -448,7 +450,7 @@ function render() {
     const card = document.createElement("div");
     card.className = "card";
     card.dataset.idx = idx;
-    card.innerHTML = curType === "words" ? cardWords(idx, i) : curType === "defs" ? cardDefs(idx, i) : cardBlanks(idx, i);
+    card.innerHTML = curType === "words" ? cardWords(idx, i) : curType === "defs" ? cardDefs(idx, i) : curType === "sents" ? cardSents(idx, i) : cardBlanks(idx, i);
     list.appendChild(card);
   });
   document.getElementById("scoreboard").classList.remove("show");
@@ -478,6 +480,13 @@ function cardDefs(idx, i) {
     '<input class="wordin" type="text" value="' + esc(st.word || "") + '" placeholder="영어 단어" autocomplete="off" spellcheck="false">' +
     '<input class="meaning" type="text" value="' + esc(st.mean || "") + '" placeholder="한글 뜻" autocomplete="off" spellcheck="false">' +
     '</div><div class="result"></div>';
+}
+function cardSents(idx, i) {
+  const w = bank()[idx], st = S().state[idx] || {};
+  return '<div class="head"><span class="no">' + String(i + 1).padStart(2, "0") + '</span>' +
+    '<span class="def">' + esc(w.exko) + '</span><span class="verdict"></span></div>' +
+    '<div class="row"><input class="wordin sentin" type="text" value="' + esc(st.word || "") + '" placeholder="예문 전체를 영어로" autocomplete="off" spellcheck="false"></div>' +
+    '<div class="result"></div>';
 }
 function cardBlanks(idx, i) {
   const w = bank()[idx], st = S().state[idx] || {};
@@ -552,6 +561,8 @@ function gradeItem(idx) {
     if (normEn(st.word || "") !== normEn(w.w)) fails.push("단어");
     const ans = normKo(st.mean || "");
     if (!w.mean.some(alt => ans.includes(normKo(alt)))) fails.push("뜻");
+  } else if (curType === "sents") {
+    if (normEn(st.word || "") !== normEn(bank()[idx].ex)) fails.push("문장");
   } else {
     const w = bank()[idx];
     if (normEn(st.word || "") !== normEn(w.form)) fails.push("빈칸");
@@ -570,6 +581,7 @@ function answerHTML(idx) {
   if (curType === "defs")
     return "<b>" + esc(w.w) + "</b> — " + esc(w.mean.join(", ")) +
       '<br><span class="exq">' + esc(w.ex) + "</span> " + esc(w.exko);
+  if (curType === "sents") return '<b class="exq">' + esc(w.ex) + "</b>";
   return "<b>" + esc(w.form) + "</b>" + (w.form !== w.w ? " (" + esc(w.w) + ")" : "") + " — " + esc(w.mean.join(", "));
 }
 
