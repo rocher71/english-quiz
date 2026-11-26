@@ -90,11 +90,11 @@
   #statusMsg b.o { color: var(--over); }
   #statusMsg b.b { color: var(--bad); }
   #fillCount { margin-left: auto; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  #statusbar .btn {
+  #statusbar .btn, #bottomgrade .btn {
     font-family: inherit; font-size: 13px; font-weight: 500; padding: 7px 14px;
     border: 1px solid var(--line); border-radius: 7px; background: var(--card); cursor: pointer; color: var(--ink);
   }
-  #statusbar .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  #statusbar .btn.primary, #bottomgrade .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
   #statusbar .btn.hinton { background: var(--over-soft); border-color: var(--over); color: var(--over); }
 
   .section { margin-top: 26px; }
@@ -143,6 +143,8 @@
   .btnrow { margin-left: 34px; display: flex; gap: 6px; flex-wrap: wrap; }
   .btnrow .overbtn { margin: 8px 0 0; }
   .eyebrow.review { color: var(--bad); }
+  #bottomgrade { margin-top: 20px; }
+  #bottomgrade .btn { width: 100%; padding: 12px; font-size: 15px; }
   footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 30px; }
 </style>
 </head>
@@ -176,9 +178,10 @@
     <button class="btn" id="shuffleBtn" onclick="reBlank()">셔플 · 새 시험</button>
     <button class="btn" id="hintBtn" onclick="toggleHint()">힌트(첫 글자)</button>
     <button class="btn" onclick="resetView()">다시 풀기</button>
-    <button class="btn primary" id="gradeBtn" onclick="gradeAll()">채점하기</button>
+    <button class="btn primary gradebtn" onclick="gradeAll()">채점하기</button>
   </div>
   <div id="content"></div>
+  <div id="bottomgrade"><button class="btn primary gradebtn" onclick="gradeAll()">채점하기</button></div>
   <footer>채점하면 정답/오답만 표시 → 틀린 문제 고쳐서 "다시 채점" → 그래도 모르겠으면 "정답 공개". 애매한 답은 정답 공개 후 "정답 처리"로 선생님이 인정할 수 있어요.<br>틀린 문제는 오답 노트에 자동으로 모여요 (이 기기에만 저장).</footer>
 </div>
 
@@ -2330,7 +2333,7 @@ function render() {
       items.map(f => renderItem(f, s)).join("") + "</div>";
   }).join("");
   updateFill();
-  document.getElementById("gradeBtn").textContent = s.graded ? "다시 채점" : "채점하기";
+  setGB(s.graded ? "다시 채점" : "채점하기");
   if (s.graded) applyGrades(false);
   else document.getElementById("statusMsg").textContent = WB.REVIEW ? "오답 다시 풀기 · " + flats.length + "문항" : "아직 채점 전";
 }
@@ -2430,9 +2433,9 @@ function gradeAll() {
       });
     }
     if (s.graded[f.n] || !s.over[f.n])
-      WB.grade(f.id, s.graded[f.n], JSON.stringify(s.ans[f.n] || ""), wbs(f.n), wbInfo(f));
+      WB.grade(f.id, s.graded[f.n], JSON.stringify(s.ans[f.n] || "").replace(/[^A-Za-z]/g, "") ? JSON.stringify(s.ans[f.n]) : null, wbs(f.n), wbInfo(f));
   });
-  document.getElementById("gradeBtn").textContent = "다시 채점";
+  setGB("다시 채점");
   applyGrades(true);
 }
 
@@ -2446,8 +2449,22 @@ function wbInfo(f) {
   return {
     g: "본문 · " + f.L + "과 · " + part + " · " + mode,
     url: "passages.html?" + (+f.L >= 7 ? "exam=final&" : "") + "lesson=" + f.L + "&part=" + cur.part + "&mode=" + cur.mode + "&review=1",
-    q: (f.tag && f.tag !== "★" ? f.tag + ": " : "") + f.ko, a: f.en
+    q: (f.tag && f.tag !== "★" ? f.tag + ": " : "") + f.ko, a: f.en, x: wbX(f)
   };
+}
+// 오답 노트 "전체 다시 풀기"용: 영작은 문장 칸 1개, 빈칸은 이번에 틀린 그 빈칸 그대로
+function wbX(f) {
+  const tag = f.tag && f.tag !== "★" ? "<b>" + esc(f.tag) + ":</b> " : "";
+  if (cur.mode === "write") return { p: tag + esc(f.ko), f: [{ t: "en", a: [f.en], ph: "Write the English sentence...", wide: 1 }] };
+  const bl = st().blanks[f.n], fs = [];
+  const p = f.en.split(" ").map((t, i) => {
+    if (!bl.includes(i)) return esc(t);
+    const core = t.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g, "");
+    const pre = t.slice(0, t.indexOf(core[0])), suf = t.slice(t.indexOf(core) + core.length);
+    fs.push({ t: "en", a: [core] });
+    return esc(pre) + "⟦" + (fs.length - 1) + "⟧" + esc(suf);
+  }).join(" ");
+  return { p: tag + p + '<div class="sub">' + esc(f.ko) + "</div>", f: fs };
 }
 
 function applyGrades(scroll) {

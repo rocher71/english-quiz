@@ -8,7 +8,14 @@ const qid = it => PAGE + "|" + WB.strip(it.q + " " + (it.given || it.en || ""));
 const ITEMS = SECTIONS.flatMap(sec => sec.items).filter(it => !WB.REVIEW || WB.inReview(qid(it)));
 let wb = new Map();   // 문항 → 오답 카운트 상태 (다시 풀기 때 초기화)
 const wbs = it => wb.get(it) || (wb.set(it, {}), wb.get(it));
-const wbInfo = it => ({ g: TITLE, url: PAGE + "?review=1", q: WB.strip((it.t === "pick" ? it.q.replace("[[]]", "[ " + it.o.join(" / ") + " ]") : it.q) + " " + (it.given || it.en || "")) + (it.o && it.t === "mc" ? " — " + it.o.map((o, i) => NUMS[i] + " " + WB.strip(o)).join(" ") : ""), a: WB.strip(answerText(it)) });
+const wbInfo = it => ({ g: TITLE, url: PAGE + "?review=1", q: WB.strip((it.t === "pick" ? it.q.replace("[[]]", "[ " + it.o.join(" / ") + " ]") : it.q) + " " + (it.given || it.en || "")) + (it.o && it.t === "mc" ? " — " + it.o.map((o, i) => NUMS[i] + " " + WB.strip(o)).join(" ") : ""), a: WB.strip(answerText(it)), e: WB.strip(it.exp || ""), x: wbX(it) });
+// 오답 노트 "전체 다시 풀기"용 문제 정보 (⟦n⟧ = n번째 칸 자리)
+function wbX(it) {
+  if (it.t === "mc") return { p: it.q + (it.en ? '<div class="given">' + esc(it.en) + "</div>" : ""), f: [{ t: "choice", o: it.o.map((o, i) => NUMS[i] + " " + o), a: it.a }] };
+  if (it.t === "pick") return { p: it.q.replace("[[]]", "[ ⟦0⟧ ]"), f: [{ t: "choice", o: it.o.map(esc), a: it.a, inline: 1 }] };
+  if (it.t === "blank") return { p: esc(it.q).replace("___", "⟦0⟧") + '<div class="sub">' + esc(it.ko) + "</div>", f: [{ t: "en", a: it.a }] };
+  return { p: it.q + '<div class="given">' + it.given + "</div>", f: [{ t: "en", a: it.a, wide: 1, ph: "Write the full sentence..." }] };
+}
 if (WB.REVIEW) document.title = "오답 다시 풀기 · " + document.title;
 function shuffle() {
   for (let i = ITEMS.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ITEMS[i], ITEMS[j]] = [ITEMS[j], ITEMS[i]]; }
@@ -46,7 +53,7 @@ function render() {
     '<div class="item" style="text-align:center;color:var(--muted)">다시 풀 오답이 없어요 🎉</div>';
   updateFill();
   if (graded) applyGrades();
-  else { document.getElementById("statusMsg").textContent = "아직 채점 전"; document.getElementById("gradeBtn").textContent = "채점하기"; }
+  else { document.getElementById("statusMsg").textContent = "아직 채점 전"; setGB("채점하기"); }
 }
 
 function choose(n, i) { ans[n] = i; render(); }
@@ -75,7 +82,8 @@ function gradeAll() {
   ITEMS.forEach((it, i) => {
     const a = ans[i + 1];
     graded[i + 1] = (it.t === "mc" || it.t === "pick") ? a === it.a : it.a.some(x => norm(x) === norm(a || ""));
-    if (graded[i + 1] || !over[i + 1]) WB.grade(qid(it), graded[i + 1], JSON.stringify(a ?? ""), wbs(it), wbInfo(it));
+    const blank = a === undefined || (typeof a === "string" && !a.trim());
+    if (graded[i + 1] || !over[i + 1]) WB.grade(qid(it), graded[i + 1], blank ? null : JSON.stringify(a), wbs(it), wbInfo(it));
   });
   if (!first) first = { ...graded };
   rounds++;
@@ -121,7 +129,7 @@ function applyGrades() {
   document.getElementById("statusMsg").innerHTML =
     "처음 채점: 정답 <b class='g'>" + f + "</b> · 오답 <b class='b'>" + (T - f) + "</b>" + (rounds < 2 && !ov ? "" :
     "　→　고친 후: 정답 <b class='g'>" + c + "</b>" + (ov ? " (인정 <b class='o'>" + ov + "</b>)" : "") + " · 오답 <b class='b'>" + (T - c) + "</b>");
-  document.getElementById("gradeBtn").textContent = "고친 후 다시 채점";
+  setGB("고친 후 다시 채점");
 }
 shuffle();
 render();

@@ -88,6 +88,8 @@
   @media (max-width: 800px) { #scoreboard { margin: 14px 16px 0; } }
 
   /* ── 문항 카드 ── */
+  #bottomgrade { max-width: 760px; margin: -36px auto 40px; padding: 0 16px; }
+  #bottomgrade button { width: 100%; padding: 12px; font-size: 15px; }
   #list { max-width: 760px; margin: 16px auto 60px; padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
   .card {
     background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
@@ -174,7 +176,7 @@
     <h1>단어 시험장<small id="subTitle"></small></h1>
     <span id="progress"></span>
     <button onclick="shuffleAll()">🔀 셔플</button>
-    <button class="primary" id="gradeBtn" onclick="gradeAll()">채점하기</button>
+    <button class="primary gradebtn" onclick="gradeAll()">채점하기</button>
   </div>
 </div>
 
@@ -187,6 +189,7 @@
 </div>
 
 <div id="list"></div>
+<div id="bottomgrade"><button class="primary gradebtn" onclick="gradeAll()">채점하기</button></div>
 
 <footer id="footNote"></footer>
 
@@ -437,8 +440,18 @@ function wbInfo(idx) {
   return {
     g: "단어 · " + L + "과 · " + t,
     url: "words.html?" + (+L >= 7 ? "exam=final&" : "") + "type=" + curType + (curType === "words" ? "" : "&lesson=" + L) + "&review=1",
-    q, a: WB.strip(answerHTML(idx))
+    q, a: WB.strip(answerHTML(idx)), x: wbX(idx)
   };
+}
+// 오답 노트 "전체 다시 풀기"용 문제 정보: p = 문제 HTML(⟦n⟧ = n번째 칸 자리), f = 칸 목록(채점 방식)
+function wbX(idx) {
+  const w = bank()[idx];
+  if (curType === "words") return { p: '<span class="word">' + esc(w.w) + "</span>",
+    f: (w.phrase ? [] : [{ t: "pos", a: w.pos, l: "품사" }]).concat([{ t: "kog", a: w.mean, all: !!w.all, l: "뜻", ph: "뜻을 입력하세요" }]) };
+  if (curType === "defs") return { p: esc(w.def), f: [{ t: "en", a: [w.w], l: "단어", ph: "영어 단어" }, { t: "ko", a: w.mean, l: "뜻", ph: "한글 뜻" }] };
+  if (curType === "sents") return { p: esc(w.exko), f: [{ t: "en", a: [w.ex], ph: "예문 전체를 영어로", wide: 1 }] };
+  const at = w.ex.indexOf(w.form);
+  return { p: esc(w.ex.slice(0, at)) + "⟦0⟧" + esc(w.ex.slice(at + w.form.length)) + '<div class="sub">' + esc(w.exko) + "</div>", f: [{ t: "en", a: [w.form] }] };
 }
 function skey() { return curType + "|" + (curType === "words" ? "" : curLesson); }
 function S() {
@@ -474,7 +487,7 @@ function render() {
     list.appendChild(card);
   });
   if (!s.order.length) list.innerHTML = '<div class="card" style="text-align:center;color:var(--muted)">' + (WB.REVIEW ? "이 탭에는 다시 풀 오답이 없어요 🎉" : "문항이 없어요") + "</div>";
-  document.getElementById("gradeBtn").textContent = s.graded ? "다시 채점" : "채점하기";
+  setGB(s.graded ? "다시 채점" : "채점하기");
   document.getElementById("scoreboard").classList.remove("show");
   if (s.graded) applyGrades();
   updateProgress();
@@ -613,9 +626,10 @@ function gradeAll() {
   s.order.forEach(idx => {
     const st = s.state[idx] = s.state[idx] || {};
     st.fails = gradeItem(idx);
-    if (!st.fails.length || !st.over) WB.grade(wid(idx), !st.fails.length, JSON.stringify([st.pos, st.mean, st.word]), st, wbInfo(idx));
+    const blank = !(st.mean || "").trim() && !(st.word || "").trim();
+    if (!st.fails.length || !st.over) WB.grade(wid(idx), !st.fails.length, blank ? null : JSON.stringify([st.pos, st.mean, st.word]), st, wbInfo(idx));
   });
-  document.getElementById("gradeBtn").textContent = "다시 채점";
+  setGB("다시 채점");
   applyGrades();
   document.getElementById("scoreboard").classList.add("show");
   window.scrollTo({ top: 0, behavior: "smooth" });
