@@ -2237,6 +2237,9 @@ DATA["8"] = {
   }
  ]
 };
+// 시험범위 제외(예진 2026-11-26): 7과 My Writing, 8과 My Writing·Team Project
+// ponytail: md2data.py로 재변환해도 다시 안 들어오게 데이터 대신 여기서 거름
+["7", "8"].forEach(l => DATA[l].extra = DATA[l].extra.filter(sec => !/^(My Writing|Team Project)/.test(sec.t)));
 DATA["78"] = {};
 ["reading", "dialogues", "extra", "vocab"].forEach(p => {
   DATA["78"][p] = DATA["7"][p].concat(DATA["8"][p]);
