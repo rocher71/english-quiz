@@ -42,6 +42,15 @@
   <h1>영어 시험장</h1>
 
   <section>
+    <nav>
+      <a href="wrong.html" style="border-color:var(--accent)">
+        <div class="t">오답 노트 ❗ <small id="wn" style="font-family:'Noto Sans KR',sans-serif;font-size:13px;color:var(--accent)"></small></div>
+        <div class="d">모든 시험장에서 틀린 문제 모아 보기 · 틀린 횟수 · 오답만 다시 풀기</div>
+      </a>
+    </nav>
+  </section>
+
+  <section>
     <h2>2학기 기말 <span>7과 · 8과</span></h2>
     <nav>
       <a href="words.html?exam=final">
@@ -86,5 +95,10 @@
       </a>
     </nav>
   </section>
+<script src="wrongbook.js"></script>
+<script>
+  const d = WB.load(), n = Object.values(d).filter(r => !r.ok).length;
+  if (n) document.getElementById("wn").textContent = "다시 풀 문제 " + n + "개";
+</script>
 </body>
 </html>

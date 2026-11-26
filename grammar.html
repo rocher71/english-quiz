@@ -163,6 +163,7 @@
   <a href="notes.html">📌 핵심 정리</a>
   <a href="grammar.html" class="on">🧩 문법 연습</a>
   <a href="idioms.html">💬 Idiom</a>
+  <a href="wrong.html">❗ 오답 노트</a>
 </nav>
 
 <header>
@@ -180,7 +181,7 @@
     <button class="btn primary" id="gradeBtn" onclick="gradeAll()">채점하기</button>
   </div>
   <div id="content"></div>
-  <footer>① 다 풀고 채점하기 → 정답/오답만 표시 　② 틀린 문제 고친 뒤 다시 채점 　③ 문항별 "선생님 채점"으로 답·해설 확인, 애매한 답은 "정답 처리"<br>서술형은 철자·단어가 정확해야 자동 정답(대소문자·마침표 무시).</footer>
+  <footer>① 다 풀고 채점하기 → 정답/오답만 표시 　② 틀린 문제 고친 뒤 다시 채점 　③ 그래도 모르면 "정답 공개"로 답·해설 확인, 애매한 답은 "정답 처리" · 틀린 문제는 오답 노트에 자동 저장<br>서술형은 철자·단어가 정확해야 자동 정답(대소문자·마침표 무시).</footer>
 </div>
 
 <script>
@@ -262,6 +263,7 @@ const SECTIONS = [
 ];
 
 </script>
+<script src="wrongbook.js"></script>
 <script src="practice.js"></script>
 </body>
 </html>

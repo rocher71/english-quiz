@@ -140,6 +140,9 @@
     border: 1px solid var(--line); border-radius: 6px; background: var(--card); cursor: pointer; color: var(--ink);
   }
   .overbtn.on { background: var(--over); border-color: var(--over); color: #fff; }
+  .btnrow { margin-left: 34px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .btnrow .overbtn { margin: 8px 0 0; }
+  .eyebrow.review { color: var(--bad); }
   footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 30px; }
 </style>
 </head>
@@ -152,6 +155,7 @@
   <a href="notes.html">📌 핵심 정리</a>
   <a href="grammar.html">🧩 문법 연습</a>
   <a href="idioms.html">💬 Idiom</a>
+  <a href="wrong.html">❗ 오답 노트</a>
 </nav>
 
 <header>
@@ -172,12 +176,13 @@
     <button class="btn" id="shuffleBtn" onclick="reBlank()">셔플 · 새 시험</button>
     <button class="btn" id="hintBtn" onclick="toggleHint()">힌트(첫 글자)</button>
     <button class="btn" onclick="resetView()">다시 풀기</button>
-    <button class="btn primary" onclick="gradeAll()">채점하기</button>
+    <button class="btn primary" id="gradeBtn" onclick="gradeAll()">채점하기</button>
   </div>
   <div id="content"></div>
-  <footer>채점 후 애매한 답은 각 문항의 "정답 처리"로 선생님이 직접 인정할 수 있어요.</footer>
+  <footer>채점하면 정답/오답만 표시 → 틀린 문제 고쳐서 "다시 채점" → 그래도 모르겠으면 "정답 공개". 애매한 답은 정답 공개 후 "정답 처리"로 선생님이 인정할 수 있어요.<br>틀린 문제는 오답 노트에 자동으로 모여요 (이 기기에만 저장).</footer>
 </div>
 
+<script src="wrongbook.js"></script>
 <script>
 // [화자/태그, 영어, 한국어]
 const DATA = {
@@ -2245,13 +2250,19 @@ if (FINAL) {
   document.querySelector("header .eyebrow").textContent = "2학기 기말고사 · 7과 & 8과";
 }
 
+if (WB.REVIEW) {
+  const e = document.querySelector("header .eyebrow");
+  e.textContent = "❗ 오답 다시 풀기 · " + e.textContent; e.classList.add("review");
+}
 const PARTS = [["reading", "Reading"], ["dialogues", "Dialogues"], ["extra", "Extra Reading"], ["vocab", "단어 예문"]];
 const MODES = [["write", "뜻 보고 영작"], ["blank", "빈칸 채우기"]];
-let cur = { lesson: LESSON_TABS[0][0], part: "reading", mode: "write" };
+const Q = new URLSearchParams(location.search);
+let cur = { lesson: Q.get("lesson") || LESSON_TABS[0][0], part: Q.get("part") || "reading", mode: Q.get("mode") || "write" };
 const store = {};   // viewKey → { ans:{}, blanks:{}, graded:{}, over:{}, hint:false }
 
 function vk() { return cur.lesson + "|" + cur.part + "|" + cur.mode; }
-function st() { return store[vk()] = store[vk()] || { ans: {}, blanks: {}, graded: null, over: {}, hint: false }; }
+function st() { return store[vk()] = store[vk()] || { ans: {}, blanks: {}, graded: null, over: {}, open: {}, wb: {}, hint: false }; }
+function wbs(n) { const s = st(); return s.wb[n] = s.wb[n] || {}; }
 function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function norm(s) { return s.toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9]/g, ""); }
 
@@ -2261,7 +2272,13 @@ function flatItems() {
   let n = 0;
   const out = [];
   DATA[cur.lesson][cur.part].forEach((sec, si) => {
-    sec.items.forEach((it, ii) => { out.push({ n: ++n, si, ii, tag: it[0], en: it[1], ko: it[2] }); });
+    // 통합 탭이어도 오답은 원래 과로 기록
+    const L = cur.lesson.length > 1 ? [...cur.lesson].find(l => DATA[l][cur.part].includes(sec)) : cur.lesson;
+    sec.items.forEach((it, ii) => {
+      const id = "p|" + L + "|" + cur.part + "|" + cur.mode + "|" + it[1];
+      if (WB.REVIEW && !WB.inReview(id)) return;
+      out.push({ n: ++n, si, ii, tag: it[0], en: it[1], ko: it[2], id, L, sec: sec.t });
+    });
   });
   return out;
 }
@@ -2300,15 +2317,19 @@ function render() {
   flats.forEach(f => (bySec[f.si] = bySec[f.si] || []).push(f));
 
   const content = document.getElementById("content");
-  content.innerHTML = DATA[cur.lesson][cur.part].map((sec, si) => {
+  content.innerHTML = flats.length ? "" : '<div class="section" style="padding:24px;text-align:center;color:var(--muted)">' +
+    (WB.REVIEW ? "이 탭에는 다시 풀 오답이 없어요 🎉" : "문항이 없어요") + "</div>";
+  content.innerHTML += DATA[cur.lesson][cur.part].map((sec, si) => {
     const items = bySec[si] || [];
+    if (!items.length) return "";
     const r0 = String(items[0].n).padStart(2, "0"), r1 = String(items[items.length - 1].n).padStart(2, "0");
     return '<div class="section"><div class="sechead"><span class="range">' + r0 + "–" + r1 + '</span><span class="st">' + esc(sec.t) + '</span><span class="ss">' + esc(sec.s) + "</span></div>" +
       items.map(f => renderItem(f, s)).join("") + "</div>";
   }).join("");
   updateFill();
+  document.getElementById("gradeBtn").textContent = s.graded ? "다시 채점" : "채점하기";
   if (s.graded) applyGrades(false);
-  else document.getElementById("statusMsg").textContent = "아직 채점 전";
+  else document.getElementById("statusMsg").textContent = WB.REVIEW ? "오답 다시 풀기 · " + flats.length + "문항" : "아직 채점 전";
 }
 
 function renderItem(f, s) {
@@ -2380,12 +2401,12 @@ function setView(l, p, m) {
 
 function resetView() {
   const s = st();
-  s.ans = {}; s.graded = null; s.over = {};
+  s.ans = {}; s.graded = null; s.over = {}; s.open = {}; s.wb = {};
   render();
 }
 function reBlank() {
   const s = st();
-  s.blanks = {}; s.ans = {}; s.graded = null; s.over = {};
+  s.blanks = {}; s.ans = {}; s.graded = null; s.over = {}; s.open = {}; s.wb = {};
   render();
 }
 function toggleHint() {
@@ -2405,8 +2426,25 @@ function gradeAll() {
         return norm(a[i] || "") === norm(core);
       });
     }
+    if (s.graded[f.n] || !s.over[f.n])
+      WB.grade(f.id, s.graded[f.n], JSON.stringify(s.ans[f.n] || ""), wbs(f.n), wbInfo(f));
   });
+  document.getElementById("gradeBtn").textContent = "다시 채점";
   applyGrades(true);
+}
+
+function mkBtn(label, on, fn) {
+  const b = document.createElement("button");
+  b.className = "overbtn" + (on ? " on" : ""); b.textContent = label; b.onclick = fn;
+  return b;
+}
+function wbInfo(f) {
+  const part = PARTS.find(p => p[0] === cur.part)[1], mode = MODES.find(m => m[0] === cur.mode)[1];
+  return {
+    g: "본문 · " + f.L + "과 · " + part + " · " + mode,
+    url: "passages.html?" + (+f.L >= 7 ? "exam=final&" : "") + "lesson=" + f.L + "&part=" + cur.part + "&mode=" + cur.mode + "&review=1",
+    q: (f.tag && f.tag !== "★" ? f.tag + ": " : "") + f.ko, a: f.en
+  };
 }
 
 function applyGrades(scroll) {
@@ -2418,19 +2456,23 @@ function applyGrades(scroll) {
     const ansBox = card.querySelector(".answer");
     card.classList.remove("correct", "wrong", "override");
     const pass = s.graded[f.n], od = s.over[f.n];
-    if (pass) { ok++; card.classList.add("correct"); v.textContent = "정답"; v.className = "verdict g"; ansBox.innerHTML = ""; card.querySelector(".overbtn")?.remove(); }
+    if (pass) { ok++; card.classList.add("correct"); v.textContent = "정답"; v.className = "verdict g"; ansBox.innerHTML = ""; card.querySelector(".btnrow")?.remove(); }
     else {
       if (od) { over++; card.classList.add("override"); v.textContent = "선생님 인정"; v.className = "verdict o"; }
       else { wrong++; card.classList.add("wrong"); v.textContent = "오답"; v.className = "verdict b"; }
-      ansBox.innerHTML = "정답: <b>" + esc(f.en) + "</b>";
-      if (!card.querySelector(".overbtn")) {
-        const b = document.createElement("button");
-        b.className = "overbtn"; b.onclick = () => { s.over[f.n] = !s.over[f.n]; applyGrades(false); };
-        ansBox.after(b);
-      }
-      const b = card.querySelector(".overbtn");
-      b.classList.toggle("on", !!od);
-      b.textContent = od ? "✓ 선생님 인정됨 (취소)" : "정답 처리";
+      // 정답은 "정답 공개"를 눌렀을 때만
+      const op = s.open[f.n];
+      ansBox.innerHTML = op ? "정답: <b>" + esc(f.en) + "</b>" : "";
+      card.querySelector(".btnrow")?.remove();
+      const row = document.createElement("div");
+      row.className = "btnrow";
+      row.append(mkBtn(op ? "정답 닫기" : "정답 공개", op, () => { s.open[f.n] = !op; if (!op) WB.reveal(wbs(f.n)); applyGrades(false); }));
+      if (op) row.append(mkBtn(od ? "✓ 선생님 인정됨 (취소)" : "정답 처리", od, () => {
+        s.over[f.n] = !od;
+        if (!od) WB.forgive(f.id, wbs(f.n)); else WB.grade(f.id, false, JSON.stringify(s.ans[f.n] || ""), wbs(f.n), wbInfo(f));
+        applyGrades(false);
+      }));
+      ansBox.after(row);
     }
   });
   const total = flatItems().length;

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>오답 노트</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Lora:wght@500&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f2ede3; --card: #fbf8f1; --ink: #35322c; --muted: #8a8272;
+    --line: #ddd5c4; --accent: #a8402f; --good: #4f7a4a; --bad: #a8402f; --bad-soft: #f6e5e1;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif; font-size: 15px; line-height: 1.55; }
+  .sitenav { display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: wrap; background: var(--ink); padding: 8px 16px; }
+  .sitenav a { color: rgba(255,255,255,.75); text-decoration: none; font-size: 13px; font-weight: 500; padding: 4px 14px; border-radius: 999px; }
+  .sitenav a:hover { color: #fff; }
+  .sitenav a.on { background: var(--accent); color: #fff; font-weight: 700; }
+  header { text-align: center; padding: 40px 16px 6px; }
+  header h1 { font-family: "Gowun Batang", serif; font-size: clamp(28px, 6vw, 38px); letter-spacing: 2px; }
+  #summary { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  #summary b { color: var(--bad); }
+  #controls { max-width: 760px; margin: 18px auto 0; padding: 0 16px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  button { font-family: inherit; font-size: 13px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+  button.on { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 700; }
+  button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  main { max-width: 760px; margin: 18px auto 40px; padding: 0 16px; display: flex; flex-direction: column; gap: 14px; }
+  .group { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .ghead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .ghead .t { font-weight: 700; }
+  .ghead .c { color: var(--muted); font-size: 13px; }
+  .ghead a { margin-left: auto; background: var(--accent); color: #fff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 6px; }
+  .row { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; padding: 10px 16px; border-top: 1px dashed var(--line); align-items: start; }
+  .row:first-of-type { border-top: none; }
+  .row.solved { opacity: .55; }
+  .n { font-size: 12px; font-weight: 700; color: var(--bad); background: var(--bad-soft); border-radius: 999px; padding: 2px 9px; white-space: nowrap; margin-top: 2px; }
+  .row.solved .n { color: var(--good); background: #e5eee3; }
+  .q { min-width: 0; overflow-wrap: anywhere; }
+  .meta { font-size: 12px; color: var(--muted); }
+  details { margin-top: 4px; font-size: 13.5px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 12.5px; width: fit-content; }
+  details .a { font-family: "Lora", Georgia, serif; margin-top: 2px; }
+  .del { border: none; background: none; color: var(--muted); font-size: 16px; padding: 0 4px; border-radius: 4px; }
+  .del:hover { color: var(--bad); }
+  .empty { text-align: center; color: var(--muted); padding: 40px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 0 16px 40px; }
+  footer button { margin-top: 10px; }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <a href="index.html">🏠 홈</a>
+  <a href="words.html">📝 단어 시험</a>
+  <a href="passages.html">✍️ 본문 시험</a>
+  <a href="notes.html">📌 핵심 정리</a>
+  <a href="grammar.html">🧩 문법 연습</a>
+  <a href="idioms.html">💬 Idiom</a>
+  <a href="wrong.html" class="on">❗ 오답 노트</a>
+</nav>
+
+<header>
+  <h1>오답 노트</h1>
+  <div id="summary"></div>
+</header>
+
+<div id="controls">
+  <button id="fTodo" onclick="view.all = false; render()">다시 풀 것만</button>
+  <button id="fAll" onclick="view.all = true; render()">해결한 것도 보기</button>
+  <span style="width:8px"></span>
+  <button id="sCnt" onclick="view.sort = 'n'; render()">많이 틀린 순</button>
+  <button id="sNew" onclick="view.sort = 't'; render()">최근 순</button>
+</div>
+
+<main id="list"></main>
+
+<footer>
+  시험장에서 채점할 때 틀린 문제가 자동으로 모여요. 같은 시험에서 같은 답으로 다시 채점하면 횟수는 늘지 않아요.<br>
+  "다시 풀기"에서 정답 공개 없이 맞히면 해결로 바뀌어요. 이 기기·브라우저에만 저장돼요.<br>
+  <button onclick="clearAll()">오답 노트 전체 지우기</button>
+</footer>
+
+<script src="wrongbook.js"></script>
+<script>
+const view = { all: false, sort: "n" };
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function when(t) { const d = new Date(t); return (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+
+function render() {
+  const d = WB.load(), all = Object.entries(d).map(([id, r]) => ({ id, ...r }));
+  const todo = all.filter(r => !r.ok);
+  document.getElementById("summary").innerHTML = all.length
+    ? "다시 풀 오답 <b>" + todo.length + "</b>개 · 해결 " + (all.length - todo.length) + "개 · 총 틀린 횟수 " + all.reduce((a, r) => a + r.n, 0) + "회"
+    : "";
+  [["fTodo", !view.all], ["fAll", view.all], ["sCnt", view.sort === "n"], ["sNew", view.sort === "t"]]
+    .forEach(([id, on]) => document.getElementById(id).classList.toggle("on", on));
+
+  const shown = (view.all ? all : todo).sort((a, b) => view.sort === "n" ? b.n - a.n || b.t - a.t : b.t - a.t);
+  const groups = {};
+  shown.forEach(r => (groups[r.g] = groups[r.g] || []).push(r));
+  const names = Object.keys(groups).sort((a, b) => a.localeCompare(b, "ko"));
+  document.getElementById("list").innerHTML = names.length ? names.map(g => {
+    const rs = groups[g], open = rs.filter(r => !r.ok);
+    return '<div class="group"><div class="ghead"><span class="t">' + esc(g) + '</span><span class="c">' + open.length + "문항</span>" +
+      (open.length ? '<a href="' + esc(rs[0].url) + '">다시 풀기 →</a>' : "") + "</div>" +
+      rs.map(r => '<div class="row' + (r.ok ? " solved" : "") + '">' +
+        '<span class="n">' + (r.ok ? "✓ " : "✗ ") + r.n + "회</span>" +
+        '<div class="q">' + esc(r.q) + '<div class="meta">마지막 오답 ' + when(r.t) + (r.ok ? " · 해결" : "") + "</div>" +
+        '<details><summary>정답 보기</summary><div class="a">' + esc(r.a) + "</div></details></div>" +
+        '<button class="del" title="오답 노트에서 지우기" aria-label="지우기" data-id="' + esc(r.id) + '">✕</button></div>').join("") +
+      "</div>";
+  }).join("") : '<div class="empty">' + (all.length ? "다시 풀 오답이 없어요 🎉 (해결한 것도 보기로 지난 오답 확인)" : "아직 오답이 없어요. 시험장에서 채점하면 틀린 문제가 여기 모여요.") + "</div>";
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest(".del");
+  if (!b) return;
+  const d = WB.load(); delete d[b.dataset.id]; WB.save(d); render();
+});
+function clearAll() {
+  if (!confirm("오답 노트를 전부 지울까요? 되돌릴 수 없어요.")) return;
+  WB.save({}); render();
+}
+// 다른 탭에서 채점하면 바로 반영
+window.addEventListener("storage", render);
+window.addEventListener("pageshow", render);
+render();
+</script>
+</body>
+</html>

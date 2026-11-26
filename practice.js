@@ -1,7 +1,15 @@
 // 연습 페이지 공용 엔진: 페이지가 SECTIONS를 먼저 정의한 뒤 이 파일을 불러옴
 const NUMS = "①②③④⑤";
 // 섹션 구분 없이 전 문항을 섞어서 출제 (페이지 열 때·다시 풀기 때마다 새 순서)
-const ITEMS = SECTIONS.flatMap(sec => sec.items);
+// 오답 노트(wrongbook.js): ?review=1 이면 아직 해결 안 한 오답만
+const TITLE = document.title;
+const PAGE = location.pathname.split("/").pop() || "index.html";
+const qid = it => PAGE + "|" + WB.strip(it.q + " " + (it.given || it.en || ""));
+const ITEMS = SECTIONS.flatMap(sec => sec.items).filter(it => !WB.REVIEW || WB.inReview(qid(it)));
+let wb = new Map();   // 문항 → 오답 카운트 상태 (다시 풀기 때 초기화)
+const wbs = it => wb.get(it) || (wb.set(it, {}), wb.get(it));
+const wbInfo = it => ({ g: TITLE, url: PAGE + "?review=1", q: WB.strip((it.t === "pick" ? it.q.replace("[[]]", "[ " + it.o.join(" / ") + " ]") : it.q) + " " + (it.given || it.en || "")) + (it.o && it.t === "mc" ? " — " + it.o.map((o, i) => NUMS[i] + " " + WB.strip(o)).join(" ") : ""), a: WB.strip(answerText(it)) });
+if (WB.REVIEW) document.title = "오답 다시 풀기 · " + document.title;
 function shuffle() {
   for (let i = ITEMS.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ITEMS[i], ITEMS[j]] = [ITEMS[j], ITEMS[i]]; }
 }
@@ -34,7 +42,8 @@ function renderItem(it, n) {
 }
 
 function render() {
-  document.getElementById("content").innerHTML = ITEMS.map((it, i) => renderItem(it, i + 1)).join("");
+  document.getElementById("content").innerHTML = ITEMS.length ? ITEMS.map((it, i) => renderItem(it, i + 1)).join("") :
+    '<div class="item" style="text-align:center;color:var(--muted)">다시 풀 오답이 없어요 🎉</div>';
   updateFill();
   if (graded) applyGrades();
   else { document.getElementById("statusMsg").textContent = "아직 채점 전"; document.getElementById("gradeBtn").textContent = "채점하기"; }
@@ -58,7 +67,7 @@ function updateFill() {
   document.getElementById("fillCount").textContent = "작성 " + done + " / " + ITEMS.length;
 }
 
-function resetAll() { ans = {}; graded = null; first = null; rounds = 0; over = {}; open = {}; shuffle(); render(); }
+function resetAll() { ans = {}; graded = null; first = null; rounds = 0; over = {}; open = {}; wb = new Map(); shuffle(); render(); }
 
 // 1차 채점 결과는 first에 고정, 이후 채점은 "틀린 것 고친 뒤" 결과로 graded만 갱신
 function gradeAll() {
@@ -66,6 +75,7 @@ function gradeAll() {
   ITEMS.forEach((it, i) => {
     const a = ans[i + 1];
     graded[i + 1] = (it.t === "mc" || it.t === "pick") ? a === it.a : it.a.some(x => norm(x) === norm(a || ""));
+    if (graded[i + 1] || !over[i + 1]) WB.grade(qid(it), graded[i + 1], JSON.stringify(a ?? ""), wbs(it), wbInfo(it));
   });
   if (!first) first = { ...graded };
   rounds++;
@@ -94,11 +104,15 @@ function applyGrades() {
     card.classList.add(pass ? "correct" : od ? "override" : "wrong");
     v.textContent = pass ? "정답" : od ? "선생님 인정" : "오답";
     v.className = "verdict " + (pass ? "g" : od ? "o" : "b");
-    // 답·해설은 선생님 채점 버튼을 눌렀을 때만 공개
+    // 답·해설은 정답 공개 버튼을 눌렀을 때만
     if (open[n]) box.innerHTML = "정답: <b>" + answerText(it) + '</b><div class="exp" style="margin-left:0">' + it.exp + "</div>";
     const row = document.createElement("div"); row.style.marginLeft = "34px";
-    row.append(btn(open[n] ? "답·해설 닫기" : "선생님 채점", open[n] ? " on" : "", () => { open[n] = !open[n]; render(); }));
-    if (open[n] && !pass) row.append(btn(od ? "✓ 선생님 인정됨 (취소)" : "정답 처리", od ? " on" : "", () => { over[n] = !over[n]; render(); }));
+    row.append(btn(open[n] ? "정답 닫기" : "정답 공개", open[n] ? " on" : "", () => { open[n] = !open[n]; if (open[n]) WB.reveal(wbs(it)); render(); }));
+    if (open[n] && !pass) row.append(btn(od ? "✓ 선생님 인정됨 (취소)" : "정답 처리", od ? " on" : "", () => {
+      over[n] = !over[n];
+      if (over[n]) WB.forgive(qid(it), wbs(it)); else WB.grade(qid(it), false, JSON.stringify(ans[n] ?? ""), wbs(it), wbInfo(it));
+      render();
+    }));
     box.after(row);
   });
   const cnt = g => { let ok = 0; ITEMS.forEach((it, i) => { if (g[i + 1] || (g === graded && over[i + 1])) ok++; }); return ok; };

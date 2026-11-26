@@ -166,6 +166,7 @@
   <a href="notes.html">📌 핵심 정리</a>
   <a href="grammar.html">🧩 문법 연습</a>
   <a href="idioms.html">💬 Idiom</a>
+  <a href="wrong.html">❗ 오답 노트</a>
 </nav>
 
 <div id="topbar">
@@ -173,7 +174,7 @@
     <h1>단어 시험장<small id="subTitle"></small></h1>
     <span id="progress"></span>
     <button onclick="shuffleAll()">🔀 셔플</button>
-    <button class="primary" onclick="gradeAll()">채점하기</button>
+    <button class="primary" id="gradeBtn" onclick="gradeAll()">채점하기</button>
   </div>
 </div>
 
@@ -189,6 +190,7 @@
 
 <footer id="footNote"></footer>
 
+<script src="wrongbook.js"></script>
 <script>
 // ════════ 시험 1: 교과서 WORDS (60문항) ════════
 // mean: 품사 블록 배열. groups = 서로 다른 의미(전부/하나 필요), 그룹 안 배열 = 동의어(하나면 인정)
@@ -411,19 +413,37 @@ const TYPES = [
 ].filter(t => !FINAL || t[0] !== "words");
 const LESSONS = FINAL ? [["7", "7과"], ["8", "8과"], ["78", "7·8 통합"]] : [["5", "5과"], ["6", "6과"], ["56", "5·6 통합"]];
 const POS_ALL = ["명", "동", "형", "부"];
-let curType = FINAL ? "defs" : "words";
-let curLesson = LESSONS[0][0];
+const Q = new URLSearchParams(location.search);
+let curType = Q.get("type") || (FINAL ? "defs" : "words");
+let curLesson = Q.get("lesson") || LESSONS[0][0];
 if (FINAL) document.title = "단어 시험장 · 기말";
+if (WB.REVIEW) document.title = "오답 다시 풀기 · " + document.title;
 const store = {};   // type|lesson → { order, state: {idx → {...}}, graded: bool }
 
 function bank() {
   if (curType === "words") return WORDS;
   return [...curLesson].flatMap(l => SCHOOL[l]);
 }
+// 오답 노트용: 통합 탭이어도 원래 과로 기록
+function realLesson(w) { return Object.keys(SCHOOL).find(l => SCHOOL[l].includes(w)); }
+function wid(idx) {
+  const w = bank()[idx];
+  return curType === "words" ? "w|words|" + w.w : "w|" + curType + "|" + realLesson(w) + "|" + w.w;
+}
+function wbInfo(idx) {
+  const w = bank()[idx], t = TYPES.find(t => t[0] === curType)[1];
+  const L = curType === "words" ? "5" : realLesson(w);
+  const q = curType === "words" ? w.w : curType === "defs" ? w.def : curType === "sents" ? w.exko : w.ex.replace(w.form, "_____") + " (" + w.exko + ")";
+  return {
+    g: "단어 · " + L + "과 · " + t,
+    url: "words.html?" + (+L >= 7 ? "exam=final&" : "") + "type=" + curType + (curType === "words" ? "" : "&lesson=" + L) + "&review=1",
+    q, a: WB.strip(answerHTML(idx))
+  };
+}
 function skey() { return curType + "|" + (curType === "words" ? "" : curLesson); }
 function S() {
   if (!store[skey()]) {
-    store[skey()] = { order: bank().map((_, i) => i), state: {}, graded: false };
+    store[skey()] = { order: bank().map((_, i) => i).filter(i => !WB.REVIEW || WB.inReview(wid(i))), state: {}, graded: false };
     shuffleOrder(store[skey()].order);
   }
   return store[skey()];
@@ -441,7 +461,7 @@ function render() {
     '<button class="' + (curType === tt[0] ? "on" : "") + '" onclick="setType(\'' + tt[0] + '\')">' + tt[1] + "</button>").join("");
   document.getElementById("lessonRow").innerHTML = curType === "words" ? "" : LESSONS.map(l =>
     '<button class="' + (curLesson === l[0] ? "on" : "") + '" onclick="setLesson(\'' + l[0] + '\')">' + l[1] + "</button>").join("");
-  document.getElementById("subTitle").textContent = (FINAL ? "2학기 기말 · " : "2학기 중간 · ") + t[2] + " · " + bank().length + "문항";
+  document.getElementById("subTitle").textContent = (WB.REVIEW ? "❗ 오답 다시 풀기 · " + S().order.length + "문항" : (FINAL ? "2학기 기말 · " : "2학기 중간 · ") + t[2] + " · " + bank().length + "문항");
   document.getElementById("footNote").textContent = t[3] + " 자동 채점 후 \"정답 처리\"로 선생님이 직접 인정할 수 있어요.";
 
   const s = S(), list = document.getElementById("list");
@@ -453,6 +473,8 @@ function render() {
     card.innerHTML = curType === "words" ? cardWords(idx, i) : curType === "defs" ? cardDefs(idx, i) : curType === "sents" ? cardSents(idx, i) : cardBlanks(idx, i);
     list.appendChild(card);
   });
+  if (!s.order.length) list.innerHTML = '<div class="card" style="text-align:center;color:var(--muted)">' + (WB.REVIEW ? "이 탭에는 다시 풀 오답이 없어요 🎉" : "문항이 없어요") + "</div>";
+  document.getElementById("gradeBtn").textContent = s.graded ? "다시 채점" : "채점하기";
   document.getElementById("scoreboard").classList.remove("show");
   if (s.graded) applyGrades();
   updateProgress();
@@ -588,7 +610,12 @@ function answerHTML(idx) {
 function gradeAll() {
   const s = S();
   s.graded = true;
-  s.order.forEach(idx => { (s.state[idx] = s.state[idx] || {}).fails = gradeItem(idx); });
+  s.order.forEach(idx => {
+    const st = s.state[idx] = s.state[idx] || {};
+    st.fails = gradeItem(idx);
+    if (!st.fails.length || !st.over) WB.grade(wid(idx), !st.fails.length, JSON.stringify([st.pos, st.mean, st.word]), st, wbInfo(idx));
+  });
+  document.getElementById("gradeBtn").textContent = "다시 채점";
   applyGrades();
   document.getElementById("scoreboard").classList.add("show");
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -611,11 +638,13 @@ function applyGrades() {
     } else {
       if (st.over) { over++; card.classList.add("override"); v.textContent = "선생님 인정"; v.className = "verdict o"; }
       else { wrong++; card.classList.add("wrong"); v.textContent = "오답"; v.className = "verdict b"; }
+      // 틀린 부분만 표시, 정답은 "정답 공개"를 눌렀을 때만
       res.innerHTML =
         st.fails.map(f => '<span class="fail">✗ ' + f + "</span>").join("") +
-        '<div class="ans">정답: ' + answerHTML(idx) + "</div>" +
-        '<button class="overbtn' + (st.over ? " on" : "") + '" onclick="toggleOver(this)">' +
-        (st.over ? "✓ 선생님 인정됨 (취소)" : "정답 처리") + "</button>";
+        (st.open ? '<div class="ans">정답: ' + answerHTML(idx) + "</div>" : "") +
+        '<button class="overbtn' + (st.open ? " on" : "") + '" onclick="toggleOpen(this)">' + (st.open ? "정답 닫기" : "정답 공개") + "</button> " +
+        (st.open ? '<button class="overbtn' + (st.over ? " on" : "") + '" onclick="toggleOver(this)">' +
+        (st.over ? "✓ 선생님 인정됨 (취소)" : "정답 처리") + "</button>" : "");
     }
   });
   document.getElementById("scoreN").textContent = auto + over;
@@ -628,8 +657,15 @@ function applyGrades() {
 
 function toggleOver(btn) {
   const card = btn.closest(".card");
-  const st = S().state[+card.dataset.idx];
+  const idx = +card.dataset.idx, st = S().state[idx];
   st.over = !st.over;
+  if (st.over) WB.forgive(wid(idx), st); else WB.grade(wid(idx), false, JSON.stringify([st.pos, st.mean, st.word]), st, wbInfo(idx));
+  applyGrades();
+}
+function toggleOpen(btn) {
+  const st = S().state[+btn.closest(".card").dataset.idx];
+  st.open = !st.open;
+  if (st.open) WB.reveal(st);
   applyGrades();
 }
 
